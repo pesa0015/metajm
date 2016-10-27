@@ -19,13 +19,11 @@ class EmployerController extends Controller
 	{
 		$this->middleware('auth');
 	}
-	
 	public function start()
 	{
 		$user = companies_employers::with('company')->find(Auth::user()->id);
 		return view('company.start', ['user' => $user]);
 	}
-
 	public function showServices(){
 		$services = Service::with('company')->get();
 
@@ -44,20 +42,25 @@ class EmployerController extends Controller
 			'selectTimes' => $selectTimes,
 			]);
 	}
-
 	public function showOpeningHours()
 	{
-		$days = array('monday','tuesday','wednesday','thursday','friday','saturday','sunday');
+		\App::setLocale('sv');
+		$days = array('måndag','tisdag','onsdag','torsdag','fredag','lördag','söndag');
 		$my_days = companies_employers::where('email', [Auth::user()->email])->first();
-		$last_day = false;
+		$last_day = Time::where('employer_id', Auth::user()->id)->orderBy('id', 'DESC')->first();
+		$day = false;
 		if ($last_day) {
-			return view('company.opening_hours_set', ['days' => $days, 'last_day' => $last_day, 'script' => 'js/company.opening_hours.js']);
+			$last_day = $last_day->timestamp;
+			// format day
+			$day = trans(strftime('days.%A', strtotime($last_day))) . ', ';
+			// format day of the month
+			$day .= strftime('%e', strtotime($last_day)) . ' ';
+			// format month
+			$day .= trans(strftime('months.%B', strtotime($last_day)));
 		}
-		else {
-			return view('company.opening_hours_empty', ['days' => $days, 'last_day' => false, 'script' => 'js/company.opening_hours.js']);
-		}
+		return view('company.opening_hours', ['days' => $days, 'last_day' => $day, 'script' => 'js/company.opening_hours.js']);
 	}
-
+	
 	public function setOpeninghours(Request $request)
     {
     	function isOpen($d) {
@@ -124,31 +127,31 @@ class EmployerController extends Controller
 		foreach($period as $dt) {
 			$dayOfWeek = date('l', strtotime($dt->format('Y-m-d')));
 			
-			if ($dayOfWeek === 'Monday' && $monday) {
+			if ($dayOfWeek == 1 && $monday) {
 				$today = getDayTimes($dt,$day->mon);
 				array_push($hours, $today);
 			}
-			if ($dayOfWeek === 'Tuesday' && $tuesday) {
+			if ($dayOfWeek == 2 && $tuesday) {
 				$today = getDayTimes($dt,$day->tue);
 				array_push($hours, $today);
 			}
-			if ($dayOfWeek === 'Wednesday' && $wednesday) {
+			if ($dayOfWeek == 3 && $wednesday) {
 				$today = getDayTimes($dt,$day->wed);
 				array_push($hours, $today);
 			}
-			if ($dayOfWeek === 'Thursday' && $thursday) {
+			if ($dayOfWeek == 4 && $thursday) {
 				$today = getDayTimes($dt,$day->thu);
 				array_push($hours, $today);
 			}
-			if ($dayOfWeek === 'Friday' && $friday) {
+			if ($dayOfWeek == 5 && $friday) {
 				$today = getDayTimes($dt,$day->fri);
 				array_push($hours, $today);
 			}
-			if ($dayOfWeek === 'Saturday' && $saturday) {
+			if ($dayOfWeek == 6 && $saturday) {
 				$today = getDayTimes($dt,$day->sat);
 				array_push($hours, $today);
 			}
-			if ($dayOfWeek === 'Sunday' && $sunday) {
+			if ($dayOfWeek == 7 && $sunday) {
 				$today = getDayTimes($dt,$day->sun);
 				array_push($hours, $today);
 			}
