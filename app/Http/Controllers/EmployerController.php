@@ -19,11 +19,13 @@ class EmployerController extends Controller
 	{
 		$this->middleware('auth');
 	}
+
 	public function start()
 	{
 		$user = companies_employers::with('company')->find(Auth::user()->id);
 		return view('company.start', ['user' => $user]);
 	}
+
 	public function showServices(){
 		$services = Service::with('company')->get();
 
@@ -42,11 +44,22 @@ class EmployerController extends Controller
 			'selectTimes' => $selectTimes,
 			]);
 	}
+
 	public function showOpeningHours()
 	{
 		\App::setLocale('sv');
-		$days = array('måndag','tisdag','onsdag','torsdag','fredag','lördag','söndag');
-		$my_days = companies_employers::where('email', [Auth::user()->email])->first();
+		$days = array(0 => 'monday', 1 => 'tuesday', 2 => 'wednesday', 3 => 'thursday', 4 => 'friday', 5 => 'saturday', 6 => 'sunday');
+		$my_days_json = companies_employers::select('default_opening_hours AS hours')->where('email', [Auth::user()->email])->first();
+		$my_days = json_decode($my_days_json->hours);
+		$days_open = array();
+		foreach ($my_days as $day) {
+			if ($day !== '-') {
+				array_push($days_open, 'checked');
+			}
+			else {
+				array_push($days_open, null);
+			}
+		}
 		$last_day = Time::where('employer_id', Auth::user()->id)->orderBy('id', 'DESC')->first();
 		$day = false;
 		if ($last_day) {
@@ -56,9 +69,11 @@ class EmployerController extends Controller
 			// format day of the month
 			$day .= strftime('%e', strtotime($last_day)) . ' ';
 			// format month
-			$day .= trans(strftime('months.%B', strtotime($last_day)));
+			$day .= trans(strftime('months.%B', strtotime($last_day))) . ' kl. ';
+			// format hour
+			$day .= substr($last_day, 10, 6);
 		}
-		return view('company.opening_hours', ['days' => $days, 'last_day' => $day, 'script' => 'js/company.opening_hours.js']);
+		return view('company.opening_hours', ['days' => $days, 'days_open' => $days_open, 'last_day' => $day, 'locale' => \App::getLocale()]);
 	}
 	
 	public function setOpeninghours(Request $request)
@@ -83,7 +98,7 @@ class EmployerController extends Controller
 		$time = time::with('employers')->where('employer_id', Auth::user()->id)->get();
 		$employer->save();
 		if (!$time->isEmpty())
-			return 'success';
+			return response()->json(['success' => true]);
 
 		$today = new DateTime(date('Y-m-d'));
 		$end = new DateTime(date('Y-m-d'));
@@ -125,7 +140,7 @@ class EmployerController extends Controller
 		$hours = array();
 
 		foreach($period as $dt) {
-			$dayOfWeek = date('l', strtotime($dt->format('Y-m-d')));
+			$dayOfWeek = date('N', strtotime($dt->format('Y-m-d')));
 			
 			if ($dayOfWeek == 1 && $monday) {
 				$today = getDayTimes($dt,$day->mon);
@@ -162,7 +177,8 @@ class EmployerController extends Controller
 				array_push($myHours, $currentHour);
 			}
 		}
+		$last_day = end($myHours);
 		Time::insert($myHours);
-		return 'success';
+		return response()->json(['success' => true, 'last_day' => $last_day['timestamp']]);
     }
 }

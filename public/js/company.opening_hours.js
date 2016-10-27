@@ -54,15 +54,17 @@ document.getElementById('set-opening-hours').onclick = function() {
 		days.repeat_weeks = document.getElementById('weeks').value;
 	else
 		days.repeat_weeks = false;
-	console.log(days);
 	var xhttp = new XMLHttpRequest();
 	xhttp.onreadystatechange = function() {
     	if (xhttp.readyState == 4 && xhttp.status == 200) {
-    		console.log(xhttp.responseText);
-    		if (xhttp.responseText === 'success') {
+    		var result = JSON.parse(xhttp.responseText);
+    		if (result.success) {
+    			if (moment(new Date(result.last_day)).isValid())
+    				document.getElementById('open-last-day').innerHTML = 'Dina arbetstider har sparats. Sista dag: ' + moment(result.last_day).format('D MMM, HH:mm');
     			$.noty.closeAll();
+    			var text = 'Dina öppettider har sparats <img src="/img/happy.png" width="20" style="margin-left:5px;">';
     			setTimeout(function(){
-    			noty({layout:'center',type:'success',theme:'relax',text:'Dina öppettider har sparats <img src="/img/happy.png" width="20" style="margin-left:5px;">'}); 
+    				noty({layout:'center', type:'success', theme:'relax', text: text}); 
     			}, 500);
     		}
     	}

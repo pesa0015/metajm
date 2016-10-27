@@ -8,9 +8,9 @@
 		<div id="end">Till</div>
 	</div>
 	<div id="days">
-		@foreach($days as $day)
+		@foreach($days as $index => $day)
 		<div class="checkbox day">
-			<label><input type="checkbox" class="is_open" checked>{{ ucfirst($day) }}</label>
+			<label><input type="checkbox" class="is_open" {{ $days_open[$index] }}>{{ trans('days.' . ucfirst($day)) }}</label>
 			<div class="set-hours">
 				<div class="start">
 					<input type="text" id="start-{{ $day }}" class="form-control opening-hours" value="08:00">
@@ -26,7 +26,7 @@
 	<div id="settings">
 		<div id="settings-left">
 			@if($last_day)
-				<p id="open-last-day">Du har tider t.o.m. {{ $last_day }}</p>
+				<p id="open-last-day">Du har tider t.o.m. <span id="last-day">{{ $last_day }}</span></p>
 			@else
 				<p id="open-last-day"><i class="ion-alert" style="margin-right:10px;"></i>Dina arbetstider är inte definierade.</p>
 			@endif
@@ -42,4 +42,10 @@
 			</button>
 		</div>
 	</div>
+@stop
+
+@section('footer')
+	<script src="{{ URL::asset('vendor/moment_js/moment.js') }}"></script>
+	<script src="{{ URL::asset("vendor/moment_js/locale/$locale.js") }}"></script>
+	<script src="{{ URL::asset('js/company.opening_hours.js') }}"></script>
 @stop

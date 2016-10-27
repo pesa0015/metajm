@@ -1,5 +1,10 @@
 @extends('company')
 
+@section('head')
+	<link rel="stylesheet" type="text/css" href="{{ URL::asset('vendor/select2/select2.min.css') }}">
+	<link rel="stylesheet" type="text/css" href="{{ URL::asset('vendor/select2/select2-skins.min.css') }}">
+@stop
+
 @section('content')
 <div id="existing_services">
 	<h1>Hantera tjänster</h1>
@@ -89,6 +94,7 @@
 @stop
 
 @section('footer')
+	<script src="{{ URL::asset('vendor/select2/select2.min.js') }}"></script>
 	@if (Auth::user()->admin_role == 1)
 		<script src="{{ URL::asset('js/company.services.admin.js') }}"></script>
 	@else

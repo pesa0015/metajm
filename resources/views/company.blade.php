@@ -6,8 +6,6 @@
 	<title>Metajm</title>
 	<link rel="stylesheet" type="text/css" href="{{ URL::asset('vendor/bootstrap/bootstrap.min.css') }}">
 	<link rel="stylesheet" type="text/css" href="{{ URL::asset('vendor/ionicons/ionicons.min.css') }}">
-	<link rel="stylesheet" type="text/css" href="{{ URL::asset('vendor/select2/select2.min.css') }}">
-	<link rel="stylesheet" type="text/css" href="{{ URL::asset('vendor/select2/select2-skins.min.css') }}">
 	@yield('head')
 	<link rel="stylesheet" type="text/css" href="{{ URL::asset('css/company.css') }}">
 </head>
@@ -27,11 +25,7 @@
 	@endif
 	@yield('content')
 	<script src="{{ URL::asset('vendor/jquery/jquery-2.1.4.min.js') }}"></script>
-	<script src="{{ URL::asset('vendor/select2/select2.min.js') }}"></script>
 	<script src="{{ URL::asset('vendor/noty_js/jquery.noty.packaged.min.js') }}"></script>
 	@yield('footer')
-	@if(isset($script))
-		<script src="{{ URL::asset($script) }}"></script>
-	@endif
 </body>
 </html>
