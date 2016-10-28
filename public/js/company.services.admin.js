@@ -59,7 +59,7 @@ newService.onclick = function() {
 	var category = row.insertCell(0).innerHTML = '<input type="text" id="category-' + rowNr + '" class="new-service category" name="new_service[][\'category\']">';
 	var description = row.insertCell(1).innerHTML = '<input type="text" id="description-' + rowNr + '" class="new-service description form-control" name="new_service[][\'description\']">';
 	var price = row.insertCell(2).innerHTML = '<input type="text" id="price-' + rowNr + '" class="new-service price form-control" name="new_service[][\'price\']">';
-	var time = row.insertCell(3).innerHTML = '<select id="time-' + rowNr + '" class="new-service time form-control" name="new_service[][\'time\']"><option value="0" selected>Välj tid</option><option value="0.5">0.5</option><option value="1">1</option><option value="1.5">1,5</option><option value="2">2</option><option value="2.5">2,5</option><option value="3">3</option></select>';
+	var time = row.insertCell(3).innerHTML = '<select id="time-' + rowNr + '" class="new-service time form-control" name="new_service[][\'time\']"><option value="0" selected>Välj tid</option><option value="30">30</option><option value="60">60</option><option value="90">90</option><option value="120">120</option><option value="150">150</option><option value="180">180</option></select>';
 	addSelect2($('#category-' + rowNr));
 	rowNr++;
 };
