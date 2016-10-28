@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Time;
+use App\TimeLeft;
 use App\Service;
 use App\CompanyEmployerService;
 use App\companies;
@@ -60,10 +61,10 @@ class EmployerController extends Controller
 				array_push($days_open, null);
 			}
 		}
-		$last_day = Time::where('employer_id', Auth::user()->id)->orderBy('id', 'DESC')->first();
+		$last_day = TimeLeft::where('employer_id', Auth::user()->id)->orderBy('id', 'DESC')->first();
 		$day = false;
 		if ($last_day) {
-			$last_day = $last_day->timestamp;
+			$last_day = $last_day->close;
 			// format day
 			$day = trans(strftime('days.%A', strtotime($last_day))) . ', ';
 			// format day of the month
@@ -108,13 +109,17 @@ class EmployerController extends Controller
 		$period = new DatePeriod($today, $interval, $end->modify('+' . $day->repeat_weeks . ' week +' . (7 - date('N') + 1) . ' days'));
 
 		function getDayTimes($day, $hour) {
+			$beginOriginal = new DateTime($day->format('Y-m-d') . ' ' . $hour->start);
 			$begin = new DateTime($day->format('Y-m-d') . ' ' . $hour->start);
 			$end = new DateTime($day->format('Y-m-d') . ' ' . $hour->end);
 
 			$hourDiff = $begin->diff($end);
+			$minutes_open = $hourDiff->h * 60;
 
-			if ($hourDiff->i == 30)
+			if ($hourDiff->i == 30) {
 				$hourDiff->h++;
+				$minutes_open += 30;
+			}
 
 			$array = array();
 
@@ -122,7 +127,7 @@ class EmployerController extends Controller
 				array_push($array,array('timestamp' => $begin->format('Y-m-d H:i'), 'employer_id' => Auth::user()->id));
 				$begin = $begin->modify('+30 minutes');
 			}
-			return $array;
+			return array('array' => $array, 'minutes_left' => array('start' => $beginOriginal->format('Y-m-d H:i'), 'close' => $end->format('Y-m-d H:i'), 'max_available_minutes' => $minutes_open, 'company_id' => Auth::user()->company->id, 'employer_id' => Auth::user()->id));
 		}
 
 		function checkDay($d) {
@@ -139,46 +144,60 @@ class EmployerController extends Controller
 
 		$hours = array();
 
+		$minutes_left = array();
+
 		foreach($period as $dt) {
 			$dayOfWeek = date('N', strtotime($dt->format('Y-m-d')));
 			
 			if ($dayOfWeek == 1 && $monday) {
 				$today = getDayTimes($dt,$day->mon);
-				array_push($hours, $today);
+				array_push($hours, $today['array']);
+				array_push($minutes_left, $today['minutes_left']);
 			}
 			if ($dayOfWeek == 2 && $tuesday) {
 				$today = getDayTimes($dt,$day->tue);
-				array_push($hours, $today);
+				array_push($hours, $today['array']);
+				array_push($minutes_left, $today['minutes_left']);
 			}
 			if ($dayOfWeek == 3 && $wednesday) {
 				$today = getDayTimes($dt,$day->wed);
-				array_push($hours, $today);
+				array_push($hours, $today['array']);
+				array_push($minutes_left, $today['minutes_left']);
 			}
 			if ($dayOfWeek == 4 && $thursday) {
 				$today = getDayTimes($dt,$day->thu);
-				array_push($hours, $today);
+				array_push($hours, $today['array']);
+				array_push($minutes_left, $today['minutes_left']);
 			}
 			if ($dayOfWeek == 5 && $friday) {
 				$today = getDayTimes($dt,$day->fri);
-				array_push($hours, $today);
+				array_push($hours, $today['array']);
+				array_push($minutes_left, $today['minutes_left']);
 			}
 			if ($dayOfWeek == 6 && $saturday) {
 				$today = getDayTimes($dt,$day->sat);
-				array_push($hours, $today);
+				array_push($hours, $today['array']);
+				array_push($minutes_left, $today['minutes_left']);
 			}
 			if ($dayOfWeek == 7 && $sunday) {
 				$today = getDayTimes($dt,$day->sun);
-				array_push($hours, $today);
+				array_push($hours, $today['array']);
+				array_push($minutes_left, $today['minutes_left']);
 			}
 		}
 		$myHours = array();
+		$myMinutes = array();
 		foreach ($hours as $hour) {
 			foreach ($hour as $currentHour) {
 				array_push($myHours, $currentHour);
 			}
 		}
-		$last_day = end($myHours);
+		foreach ($minutes_left as $minutes) {
+			array_push($myMinutes, $minutes);
+		}
 		Time::insert($myHours);
-		return response()->json(['success' => true, 'last_day' => $last_day['timestamp']]);
+		TimeLeft::insert($myMinutes);
+		$last_day = end($myMinutes);
+		return response()->json(['success' => true, 'last_day' => $last_day['close']]);
     }
 }
