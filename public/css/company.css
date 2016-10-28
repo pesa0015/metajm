@@ -319,7 +319,7 @@ button[id^="edit-service-"] {
 
 }*/
 #new-services tbody tr td input:not(.select2-input), #new-services tbody tr td select {
-    margin: 30px 0px 30px 30px;
+    margin: 20px 20px 20px 0;
 }
 #new-services tbody tr td:first-child {
     margin: 0;
@@ -400,7 +400,8 @@ button[id^="edit-service-"] {
     /*width: 300px;*/
 }
 .select2-container.select2-container-multi.new-service.category {
-    width: 150px;
+    /*width: 150px;*/
+    margin-right: 16px;
 }
 .select2-container .select2-choice .select2-arrow {
     /*display: none;*/
@@ -412,7 +413,7 @@ button[id^="edit-service-"] {
     display: block;
 }
 .tpx-select2-container.select2-container-multi .select2-choices {
-    width: 110px;
+    width: 130px;
 }
 .select2-container-multi .select2-choices .select2-search-field {
     display: none;
@@ -421,7 +422,7 @@ button[id^="edit-service-"] {
     display: none;
 }*/
 .new-service.description {
-    width: 100px;
+    width: 130px;
 }
 .new-service.price {
     width: 60px;

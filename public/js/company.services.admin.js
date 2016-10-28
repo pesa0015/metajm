@@ -53,8 +53,22 @@ var existingServicesTime = document.getElementsByClassName('existing-service tim
 var rowNr = 0;
 var updateButton = document.getElementById('update-services');
 newService.onclick = function() {
-	if (updateButton.style.display == 'none')
+	if (updateButton.style.display == 'none') {
 		updateButton.style.display = 'inline-block';
+		var header = serviceTable.createTHead();
+		var categoryHeader = document.createElement('th');
+		categoryHeader.innerHTML = 'Tjänst';
+		header.appendChild(categoryHeader);
+		var descriptionHeader = document.createElement('th');
+		descriptionHeader.innerHTML = 'Kategori';
+		header.appendChild(descriptionHeader);
+		var priceHeader = document.createElement('th');
+		priceHeader.innerHTML = 'Pris';
+		header.appendChild(priceHeader);
+		var timeHeader = document.createElement('th');
+		timeHeader.innerHTML = 'Tid (min)';
+		header.appendChild(timeHeader);
+	}
 	var row = serviceTable.insertRow(rowNr);
 	var category = row.insertCell(0).innerHTML = '<input type="text" id="category-' + rowNr + '" class="new-service category" name="new_service[][\'category\']">';
 	var description = row.insertCell(1).innerHTML = '<input type="text" id="description-' + rowNr + '" class="new-service description form-control" name="new_service[][\'description\']">';
