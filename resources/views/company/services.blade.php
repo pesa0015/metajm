@@ -17,7 +17,7 @@
 				<th>Tjänst</th>
 				<th>Kategori</th>
 				<th>Pris (sek)</th>
-				<th>Tid (h)</th>
+				<th>Tid (min)</th>
 				<th>Använd</th>
 			</tr>
 			@foreach ($services as $service)

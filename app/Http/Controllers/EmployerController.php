@@ -37,7 +37,7 @@ class EmployerController extends Controller
 				array_push($myServicesArray, $my_service->service->id);
 			}
 		}
-		$selectTimes = array(0.5,1,1.5,2,2.5,3);
+		$selectTimes = array(30, 60, 90, 120, 150, 180);
 		return view('company.services', [
 			'services' => $services, 
 			'my_services' => $services, 
