@@ -76,10 +76,14 @@ class ServiceController extends Controller
             $myService = new CompanyEmployerService;
             $myService->employer_id = Auth::user()->id;
             $myService->service_id = $currentService->id;
+            $myService->company_id = Auth::user()->company->id;
             $myService->save();
         }
         else {
-            $myService = CompanyEmployerService::where('employer_id', Auth::user()->id)->where('service_id', $service->id)->delete();
+            $myService = CompanyEmployerService::where('employer_id', Auth::user()->id)
+                                               ->where('service_id', $service->id)
+                                               ->where('company_id', Auth::user()->company->id)
+                                               ->delete();
         }
         return response()->json(['success' => true]);
     }
