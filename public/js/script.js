@@ -411,7 +411,9 @@ function getCompanyInfo(company_id) {
   xhttp.send('company_id=' + company_id);
 }
 function renderService(id, description, price, time) {
-  return '<input type="radio" name="service" value="' + id +'" class="input-service"><label class="label-service" for="service"><span class="service-description">' + description + '</span><span class="service-price"> ' + price + ' kr</span><span class="service-time">' + time + 'h</span><i class="ion-plus"></i><i class="ion-minus"></i></label>';
+  var nr = time / 60;
+  var time_string = (nr % 1 == 0) ? nr + 'h' : time + ' min'
+  return '<input type="radio" name="service" value="' + id +'" class="input-service"><label class="label-service" for="service"><span class="service-description">' + description + '</span><span class="service-price"> ' + price + ' kr</span><span class="service-time">' + time_string + '</span><i class="ion-plus"></i><i class="ion-minus"></i></label>';
 }
 function getServices(company_id, company_data, days_available, day) {
   xhttp.onreadystatechange = function() {
