@@ -8,7 +8,7 @@ class CompanyEmployerService extends Model
 {
     public $timestamps = false;
 	public $table = 'companies_employers_services';
-    protected $fillable = ['company_id', 'employer_id', 'service_id'];
+    protected $fillable = ['company_id', 'employer_id', 'service_id', 'company_id'];
 
     public function employer()
     {
@@ -18,5 +18,10 @@ class CompanyEmployerService extends Model
     public function service()
     {
     	return $this->belongsTo('App\Service', 'service_id');
+    }
+
+    public function company()
+    {
+        return $this->belongsTo('App\companies', 'company_id');
     }
 }
