@@ -12,6 +12,18 @@ html, body {
 .hlight {
     background: #F4E8E6;
 }
+.available-day {
+    /*background: #F4E8E6;*/
+    background: #4CA64C;
+    border-radius: 1px;
+}
+.ui-widget-content .ui-state-default {
+    text-decoration: none;
+    color: #FFA500;
+}
+.busy-day {
+    background: #FF3232;
+}
 nav #logo {
     display: inline-block;
 }
@@ -577,12 +589,14 @@ input[type=checkbox]:checked + label[for=tattoo] {
     font-weight: 100;
     float: right;
     margin-top: 50px;
+    width: 270px;
 }
 #choose-buttons div i {
     margin: 0px 5px 0px 5px;
 }
 #go-to-days {
-    margin-right: 30px;
+    margin: 0;
+    display: inline-block;
 }
 #go-to-days i.ion-android-close {
     vertical-align: middle;
@@ -594,12 +608,15 @@ input[type=checkbox]:checked + label[for=tattoo] {
     border-radius: 5px;
     cursor: pointer;
 }
+#go-to-times {
+    float: right;
+}
 #select-time {
     display: none;
     list-style: none;
     height: 130px;
     text-align: right;
-    margin-top: 10px;
+    margin: 55px 0 0 0;
     overflow-y: scroll;
 }
 #select-time li {

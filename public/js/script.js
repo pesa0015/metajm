@@ -13,21 +13,10 @@ var address = document.getElementById('search-text');
 var chooseDay = document.getElementById('choose-day');
 var chooseCity = document.getElementById('choose-city');
 var selectStylist = document.getElementById('select-stylist');
-var times = {
-              '2016-05-18':{
-                '08:00':true,
-                '08:30':true,
-                '09:00':false,
-                '09:30':false,
-                '10:00':true
-              },
-              '2016-05-19':false
-            };
-// var lat = document.getElementById('lat');
-// var lng = document.getElementById('lng');
+
 var searchResults1 = document.getElementById('first-ul');
 var searchResults2 = document.getElementById('second-ul');
-// var timestamp = '2016-07-01';
+
 Date.prototype.yyyymmdd = function() {
    var yyyy = this.getFullYear().toString();
    var mm = (this.getMonth()+1).toString(); // getMonth() is zero-based
@@ -38,21 +27,15 @@ Date.prototype.yyyymmdd = function() {
 d = new Date();
 var now = d.yyyymmdd();
 var timestamp = $('.timestamp');
-// $('.timestamp').val(timestamp);
 // chooseDay.placeholder += ', ' + timestamp;
 var xhttp = new XMLHttpRequest();
-// var baseUrl = 'http://46.101.90.3';
-var baseUrl = 'http://localhost:8888/metajm.v4';
 var selectTime = document.getElementById('select-time');
-var checkBooking = [{'stylist':'Johanna','day':'2016-05-07','time':'09:00'}];
-// console.log(checkBooking[0]);
 var availableTimes = ['08:00','08:30','09:00','09:30','10:00','10:30','11:00','11:30','12:00','12:30','13:00','13:30','14:00','14:30','15:00','15:30','16:00','16:30','17:00','17:30','18:00','18:30','19:00','19:30','20:00'];
 for (var i = 0; i < availableTimes.length; i++) {
   var listItem = document.createElement('li');
   listItem.innerHTML = availableTimes[i];
   selectTime.appendChild(listItem);
 }
-
 function showCompanyPage() {
   // noPosition.style.display = 'none';
   $(noPosition).fadeOut(1000);
@@ -72,18 +55,11 @@ function hideCompanyPage() {
   document.getElementById('start').style.background = 'none';
   document.getElementById('start-background').style.position = 'relative';
 }
-
 function firstToUpperCase( str ) {
     return str.substr(0, 1).toUpperCase() + str.substr(1);
 }
 var circle;
 var map;
-// function initMap() {
-//         map = new google.maps.Map(document.getElementById('map'), {
-//           center: {lat: -34.397, lng: 150.644},
-//           zoom: 8
-//         });
-//       }
 function gmap(map, lat, lng) {
   marker = new google.maps.Marker({
       position: new google.maps.LatLng(lat, lng),
@@ -372,6 +348,7 @@ function getServicesFromCalendar(companyId, date) {
 }
 function activateCalendar(companyId, events, destroy) {
   var reloadCalendar = destroy || false;
+  console.log(events);
   if (reloadCalendar) {
     $(timestamp).val('');
     $(timestamp).datepicker('destroy');
@@ -388,10 +365,11 @@ function activateCalendar(companyId, events, destroy) {
           var string = jQuery.datepicker.formatDate('yy-mm-dd', date);
           if (matching.length) {
               // result = [true, 'highlight', null];
-              return [true, 'highlight', null];
+              return [true, 'available-day', null];
           }
           else {
-            return [false];
+            return [true, 'busy-day', null];
+            // return [false];
           }
         },
     onSelect: function(date) {
@@ -435,13 +413,13 @@ function getCompanyInfo(company_id) {
 function renderService(id, description, price, time) {
   return '<input type="radio" name="service" value="' + id +'" class="input-service"><label class="label-service" for="service"><span class="service-description">' + description + '</span><span class="service-price"> ' + price + ' kr</span><span class="service-time">' + time + 'h</span><i class="ion-plus"></i><i class="ion-minus"></i></label>';
 }
-function getServices(company_id, company_data) {
+function getServices(company_id, company_data, days_available, day) {
   xhttp.onreadystatechange = function() {
     if (xhttp.readyState == 4 && xhttp.status == 200) {
       console.log(xhttp.responseText);
       var data = JSON.parse(xhttp.responseText);
-      // console.log(data);
-      var company = data.company[0];
+      
+      var company = data.company;
       showCompanyPage();
       var services = data.services;
       var employers = data.employers;
@@ -452,29 +430,37 @@ function getServices(company_id, company_data) {
         for (var i = 0; i < services.length; i++) {
           nextCategory = (previousCategory !== services[i].category_name) ? true : false;
           if (nextCategory) {
-            $(chooseServiceList).append('<div class="service-category">' + services[i].category_name + '</div>');
-            $(chooseServiceList).append(renderService(services[i].id, services[i].description, services[i].price, services[i].time));
+            $(chooseServiceList).append('<div class="service-category">' + services[i].category + '</div>');
+            $(chooseServiceList).append(renderService(services[i].id, services[i].name, services[i].price, services[i].time));
             document.getElementsByClassName('label-service')[i].addEventListener('click', serviceCheckbox, false);
           }
           else {
-            $(chooseServiceList).append(renderService(services[i].id, services[i].description, services[i].price, services[i].time));
+            $(chooseServiceList).append(renderService(services[i].id, services[i].name, services[i].price, services[i].time));
             document.getElementsByClassName('label-service')[i].addEventListener('click', serviceCheckbox, false);
           }
-          previousCategory = services[i].category_name;
+          previousCategory = services[i].category;
         }
         for (var i = 0; i < employers.length; i++) {
           $(selectStylist).append('<li>' + employers[i].first_name + ' ' + employers[i].last_name + '</li>');
         }
-        var events = [];
-        for (var i = 0; i < open.length; i++) {
-          var event = {};
-          event.Title = '';
-          event.Date = new Date(open[i].close.replace(/-/g, '/').substring(0,10));
-          events.push(event);
+        if (days_available) {
+          var events = [];
+          for (var i = 0; i < days_available.length; i++) {
+            var event = {};
+            event.Title = '';
+            event.Date = new Date(days_available[i].start.replace(/-/g, '/').substring(0,10));
+            events.push(event);
+          }
         }
-        $('#hour-start').append(moment(data.hours[0].open).format('HH:mm'));
-        $('#hour-close').append(moment(data.hours[0].close).format('HH:mm'));
-        selectableHours = data.times;
+        if (day && moment(day.open).isValid()) {
+          $('#hour-start').append(moment(day.open).format('HH:mm'));
+          $('#hour-close').append(moment(day.close).format('HH:mm'));
+        }
+        else {
+          document.getElementById('open').innerHTML = 'Ej öppet idag';
+        }
+        
+        // selectableHours = data.times;
         activateCalendar(company_id, events, true);
         // $(chooseServiceList).append('<div id="go-to-booking">Boka <i class="ion-checkmark-round"></i></div>');
       }
@@ -482,6 +468,8 @@ function getServices(company_id, company_data) {
       document.getElementById('company-name').innerHTML = company.name;
       document.getElementById('company-name').setAttribute('data-company-id', company.id);
       document.getElementById('company-address').innerHTML = company.address;
+      document.getElementById('company-tel').getElementsByTagName('span')[0].innerHTML = company.tel;
+      document.getElementById('company-mail').getElementsByTagName('span')[0].innerHTML = company.mail;
       // start.style.backgroundImage = 'url(img/2.jpg)';
       $('html, body').animate({scrollTop: 0}, 1500);
     }
@@ -519,7 +507,7 @@ search.onclick = function(e) {
         });
       }
       if (result.go_to_company) {
-        getServices(result.company[0].id, result.company[0]);
+        getServices(result.company[0].id, result.company[0], result.days_available, result.day[0]);
       }
       if (result.show_google_maps) {
           if (result.not_found) {
@@ -551,7 +539,7 @@ search.onclick = function(e) {
               getServices(this.getAttribute('data-id'), this.childNodes);
             };
           }
-          }
+        }
       }
     }
   }

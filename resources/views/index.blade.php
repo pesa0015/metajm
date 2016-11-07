@@ -106,11 +106,11 @@
             <div id="selected-company">
                 <div id="company-data">
                     <!-- <i class="ion-ios-information-outline"></i> -->
-                    <h3 id="company-name">Ciceros hårvårdsateljé</h3>
-                    <div id="company-address">Borgaregatan 15</div>
+                    <h3 id="company-name"></h3>
+                    <div id="company-address"></div>
                     <div id="open">Öppet idag: <span id="hour-start"></span> - <span id="hour-close"></span></div>
-                    <div id="company-tel"><i class="fa fa-mobile"></i> 0704903063</div>
-                    <div id="company-mail"><i class="fa fa-envelope-o"></i> cicero@gmail.com</div>
+                    <div id="company-tel"><i class="ion-ios-telephone"></i><span></span></div>
+                    <div id="company-mail"><i class="ion-email"></i><span></span></div>
                     <div id="choose-buttons">
                         <!-- <div id="go-to-days">Välj dag <i class="fa fa-calendar-o"></i></div> -->
                         <input type="text" id="go-to-days" class="timestamp" value="Alla dagar"><i class="ion-ios-close tooltip" title="Återställ datum"></i>
