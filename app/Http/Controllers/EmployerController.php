@@ -147,48 +147,26 @@ class EmployerController extends Controller
 		$saturday = checkDay($day->sat);
 		$sunday = checkDay($day->sun);
 
+		// Boolean values for open days
+        $weekDaysOpen = array($monday,$tuesday,$wednesday,$thursday,$friday,$saturday,$sunday);
+
+        // Actual opening hours
+        $days = array($day->mon,$day->tue,$day->wed,$day->thu,$day->fri,$day->sat,$day->sun);
+
 		$hours = array();
 
 		$minutes_left = array();
 
 		foreach($period as $dt) {
 			$dayOfWeek = date('N', strtotime($dt->format('Y-m-d')));
-			
-			if ($dayOfWeek == 1 && $monday) {
-				$today = getDayTimes($dt,$day->mon);
-				array_push($hours, $today['array']);
-				array_push($minutes_left, $today['minutes_left']);
-			}
-			if ($dayOfWeek == 2 && $tuesday) {
-				$today = getDayTimes($dt,$day->tue);
-				array_push($hours, $today['array']);
-				array_push($minutes_left, $today['minutes_left']);
-			}
-			if ($dayOfWeek == 3 && $wednesday) {
-				$today = getDayTimes($dt,$day->wed);
-				array_push($hours, $today['array']);
-				array_push($minutes_left, $today['minutes_left']);
-			}
-			if ($dayOfWeek == 4 && $thursday) {
-				$today = getDayTimes($dt,$day->thu);
-				array_push($hours, $today['array']);
-				array_push($minutes_left, $today['minutes_left']);
-			}
-			if ($dayOfWeek == 5 && $friday) {
-				$today = getDayTimes($dt,$day->fri);
-				array_push($hours, $today['array']);
-				array_push($minutes_left, $today['minutes_left']);
-			}
-			if ($dayOfWeek == 6 && $saturday) {
-				$today = getDayTimes($dt,$day->sat);
-				array_push($hours, $today['array']);
-				array_push($minutes_left, $today['minutes_left']);
-			}
-			if ($dayOfWeek == 7 && $sunday) {
-				$today = getDayTimes($dt,$day->sun);
-				array_push($hours, $today['array']);
-				array_push($minutes_left, $today['minutes_left']);
-			}
+
+			$weekDay = array_search($dayOfWeek-1,$weekDaysOpen);
+			$isOpen = $weekDaysOpen[$weekDay];
+			if ($weekDay >= 0 && $weekDay < 7 && $isOpen) {
+                $today = getDayTimes($dt,$days[$weekDay]);
+                array_push($hours, $today['array']);
+                array_push($minutes_left, $today['minutes_left']);
+            }
 		}
 		$myHours = array();
 		$myMinutes = array();
