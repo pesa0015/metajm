@@ -49,18 +49,23 @@ class EmployerController extends Controller
 	public function showOpeningHours()
 	{
 		\App::setLocale('sv');
-		$days = array(0 => 'monday', 1 => 'tuesday', 2 => 'wednesday', 3 => 'thursday', 4 => 'friday', 5 => 'saturday', 6 => 'sunday');
+		$days = array('monday','tuesday','wednesday','thursday','friday','saturday','sunday');
 		$my_days_json = companies_employers::select('default_opening_hours AS hours')->where('email', [Auth::user()->email])->first();
 		$my_days = json_decode($my_days_json->hours);
 		$days_open = array();
-		foreach ($my_days as $day) {
-			if ($day !== '-') {
-				array_push($days_open, 'checked');
-			}
-			else {
-				array_push($days_open, null);
+		if ($my_days) {
+			foreach ($my_days as $day) {
+				if ($day !== '-') {
+					array_push($days_open, 'checked');
+				}
+				else {
+					array_push($days_open, false);
+				}
 			}
 		}
+		else 
+			$days_open = array('checked','checked','checked','checked','checked',false,false);
+
 		$last_day = TimeLeft::where('employer_id', Auth::user()->id)->orderBy('id', 'DESC')->first();
 		$day = false;
 		if ($last_day) {
