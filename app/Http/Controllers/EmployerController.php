@@ -147,6 +147,8 @@ class EmployerController extends Controller
 		$saturday = checkDay($day->sat);
 		$sunday = checkDay($day->sun);
 
+		$weekDayNumbers = array(0,1,2,3,4,5,6);
+
 		// Boolean values for open days
         $weekDaysOpen = array($monday,$tuesday,$wednesday,$thursday,$friday,$saturday,$sunday);
 
@@ -160,10 +162,10 @@ class EmployerController extends Controller
 		foreach($period as $dt) {
 			$dayOfWeek = date('N', strtotime($dt->format('Y-m-d')));
 
-			$weekDay = array_search($dayOfWeek-1,$weekDaysOpen);
+			$weekDay = array_search($dayOfWeek-1,$weekDayNumbers);
 			$isOpen = $weekDaysOpen[$weekDay];
 			if ($weekDay >= 0 && $weekDay < 7 && $isOpen) {
-                $today = getDayTimes($dt,$days[$weekDay]);
+				$today = getDayTimes($dt,$days[$weekDay]);
                 array_push($hours, $today['array']);
                 array_push($minutes_left, $today['minutes_left']);
             }
