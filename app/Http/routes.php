@@ -11,9 +11,14 @@
 |
 */
 
-Route::get('/', 'IndexController@welcome');
+Route::post('booking/done', 'IndexController@check');
 
-Route::post('get-services', 'CompanyController@getServices');
+
+Route::group(['prefix' => 'get'], function() {
+	Route::post('services', 'CompanyController@getServices');
+	Route::post('times', 'CompanyController@getTimesAndEmployers');
+	Route::post('employers', 'CompanyController@getEmployers');
+});
 
 Route::group(['prefix' => 'search'], function() {
 	Route::post('category', 'SearchController@category');
@@ -36,11 +41,16 @@ Route::group(['prefix' => 'search'], function() {
 Route::group(['middleware' => 'web'], function () {
 	Route::auth();
 
+	Route::get('/', 'IndexController@welcome');
+
 	Route::get('logga-in/privat', 'LoginController@loginPrivate');
 	Route::get('logga-in/foretag', 'LoginController@loginCompany');
 	Route::post('auth/private', 'LoginController@authPrivate');
 	Route::post('auth/company', 'LoginController@authCompany');
     Route::get('logout', 'LoginController@logout');
+
+    Route::post('booking/start', 'BookController@start');
+    Route::post('booking/do', 'BookController@goToSveaPaymentPage');
 
 	Route::get('company/start', 'EmployerController@start');
 	Route::get('company/services', 'EmployerController@showServices');
