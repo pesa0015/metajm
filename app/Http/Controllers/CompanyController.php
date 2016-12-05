@@ -27,4 +27,23 @@ class CompanyController extends Controller
                     ->get();
         return response()->json(['company' => $company, 'services' => $services, 'employers' => $employers]);
     }
+
+    public function getTimesAndEmployers(Request $request)
+    {
+        $companyId = $request->company_id;
+        $serviceId = $request->service_id;
+
+        $service = \App\Service::find($serviceId);
+
+        $days = DB::table('time_left')
+                    ->join('companies_employers_services', 'time_left.employer_id', '=', 'companies_employers_services.employer_id')
+                    ->join('services', 'companies_employers_services.employer_id', '=', 'companies_employers_services.employer_id')
+                    ->where('companies_employers_services.service_id', $serviceId)
+                    ->where('time_left.max_available_minutes', '>=', $service->time)
+                    ->get();
+                    
+        $employers = \App\CompanyEmployerService::with('employer')->where('service_id', $serviceId)->get();
+
+        return response()->json(['employers' => $employers, 'days' => $days]);
+    }
 }
