@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class ChangeTimestampToNullableTimesTable extends Migration
+class AddNewTimestampToTimesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -13,7 +13,7 @@ class ChangeTimestampToNullableTimesTable extends Migration
     public function up()
     {
         Schema::table('times', function (Blueprint $table) {
-            $table->dropColumn('timestamp');
+            $table->timestamp('timestamp')->nullable();
         });
     }
 
