@@ -11,42 +11,62 @@
     <link rel="stylesheet" type="text/css" href="{{ URL::asset('css/style.css') }}">
 </head>
 <body>
-    <div class="md-modal md-effect-1" id="book-modal">
+    <div id="csrf-token" data-value="{{ Session::token() }}"></div>
+    <div id="payment"></div>
+    <div class="md-modal md-effect-1" id="login-modal">
         <div class="md-content">
             <h1>Bokning</h1>
-            <form action="" method="post">
-                <div>
-                    <input type="text" id="fname">
-                </div>
-                <div>
-                    <input type="text" id="lname">
-                </div>
-                <div>
-                    <input type="email" id="mail">
-                </div>
-                <div>
-                    <input type="tel" id="tel">
-                </div>
-                <div>
-                    <span id="book">Slutför bokning</span>
-                </div>
+            <form action="#" method="post" id="login-form">
+                <div>Logga in för att fortsätta:</div>
+                <input type="hidden" id="login-action">
+                <input type="text" id="email">
+                <input type="password" id="password">
+                <input type="submit" value="Logga in">
+                <div>Ny kund?</div>
             </form>
         </div>
     </div>
-    <div class="md-modal md-effect-1" id="login-modal">
+    <div class="md-modal md-effect-1" id="register-modal">
         <div class="md-content">
-            <h3 id="login-as" data-login-type="company"></h3>
-            <div>
-                <form action="/auth" method="post" id="login-form">
-                    <input type="hidden" name="_token" id="csrf-token" value="{{ Session::token() }}" />
-                    <input type="hidden" name="login_type" value="company">
-                    <p>E-mail</p>
-                    <input type="email" name="email" id="username">
-                    <p>Lösenord</p>
-                    <input type="password" name="password" id="password">
-                    <input type="submit" id="login" value="Logga in">
-                </form>
+            <h1>Registrera</h1>
+            <form action="#" method="post" id="register-form">
+                <input type="hidden" id="register-action">
+                <input type="text" id="email">
+                <input type="password" id="password">
+                <input type="submit" value="Registrera">
+                <span>Jag har redan konto</span>
+            </form>
+        </div>
+    </div>
+    <div class="md-modal md-effect-1" id="confirm-modal">
+        <div class="md-content">
+            <h1>Boka</h1>
+            <div id="booking-info">
+                <div id="company"></div>
+                <div id="service"></div>
+                <div id="stylist"></div>
+                <div id="time"></div>
+                <div id="address"></div>
             </div>
+            <hr />
+            <div>
+                <div id="my-name"></div>
+                <div id="my-email"></div>
+                <div id="my-tel"></div>
+            </div>
+            <br />
+            <div>Betalning måste slutföras inom 15 minuter.</div>
+            <br />
+            <div id="wait" class="showbox hide">
+                <div class="loader">
+                    <svg class="circular" viewBox="25 25 50 50">
+                        <circle class="path" cx="50" cy="50" r="20" fill="none" stroke-width="2" stroke-miterlimit="10"/>
+                    </svg>
+                </div>
+            </div>
+            <form name="paymentForm" id="startPayment" method="post" action="#">
+                <input type="submit" id="start_booking" name="start_booking" value="Till betalning">
+            </form>
         </div>
     </div>
     <div class="md-overlay"></div>
@@ -128,7 +148,7 @@
                         <ul id="select-stylist"></ul>
                     </div>
                     <div id="services"></div>
-                    <div id="go-to-booking">Boka <i class="ion-checkmark-round"></i></div>
+                    <div id="go-to-booking" class="disabled" disabled>Boka <i class="ion-checkmark-round"></i></div>
                 </div>
             </div>
         </div>

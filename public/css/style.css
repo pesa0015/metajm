@@ -1,10 +1,30 @@
 @import url(https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,600);
+@import url('loader.css');
 html, body {
     font-family: 'Source Sans Pro', sans-serif;
     height: 100%;
     margin: 0;
     padding: 0;
     overflow-x: hidden;
+}
+.md-overlay {
+    background: rgba(66,68,78,0.8);
+}
+.md-modal {
+    width: 300px;
+}
+.md-content > div {
+    padding: 0;
+}
+.md-content {
+    border-radius: 10px;
+    padding: 2px 30px 30px 30px;
+}
+.md-content h1, .md-content div {
+    text-align: center;
+}
+.md-content input {
+    width: 100%;
 }
 #selected-company {
     display: none;
@@ -606,7 +626,6 @@ input[type=checkbox]:checked + label[for=tattoo] {
     border: 1px solid #FFFFFF;
     padding: 10px;
     border-radius: 5px;
-    cursor: pointer;
 }
 #go-to-times {
     float: right;
@@ -631,6 +650,22 @@ input[type=checkbox]:checked + label[for=tattoo] {
 }
 #go-to-stylist i {
     margin: 0px 5px 0px 5px;
+}
+#select-stylist {
+    list-style: none;
+    padding-left: 15px;
+}
+#select-stylist li {
+    display: inline-block;
+    border: 1px solid #FFFFFF;
+    border-radius: 50px;
+    padding: 10px;
+    cursor: pointer;
+    transition: .5s;
+}
+#select-stylist li:hover {
+    background: #FFFFFF;
+    color: #000000;
 }
 #go-to-booking {
     float: right;
@@ -801,7 +836,21 @@ input#show-companies:checked + span + #when {
     transform: translateY(-15px);
   }
 }
-
+.hide {
+    display: none;
+}
+.display-block {
+    display: block;
+}
+.display-inline-block {
+    display: inline-block;
+}
+input[type=submit], button {
+    outline: 0;
+}
+#paymentForm input[type=submit] {
+    display: none;
+}
 .arrow {
   position: fixed;
   bottom: 10;

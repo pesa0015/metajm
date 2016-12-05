@@ -17,6 +17,14 @@ var selectStylist = document.getElementById('select-stylist');
 var searchResults1 = document.getElementById('first-ul');
 var searchResults2 = document.getElementById('second-ul');
 
+var booking = {'service': false, 'time': false, 'employer': false};
+
+function checkIfBookingReady() {
+  if (!booking.time) return;
+  if (booking.service && booking.time.indexOf(':') != -1)
+    $('#go-to-booking').removeClass('disabled').css('cursor', 'pointer').removeAttr('disabled');
+}
+
 Date.prototype.yyyymmdd = function() {
    var yyyy = this.getFullYear().toString();
    var mm = (this.getMonth()+1).toString(); // getMonth() is zero-based
@@ -36,10 +44,16 @@ for (var i = 0; i < availableTimes.length; i++) {
   listItem.innerHTML = availableTimes[i];
   selectTime.appendChild(listItem);
 }
-function showCompanyPage() {
-  // noPosition.style.display = 'none';
-  $(noPosition).fadeOut(1000);
-  $('#video').fadeOut(1000);
+function showCompanyPage(fadeIn) {
+  if (fadeIn) {
+    $(noPosition).fadeOut(1000);
+    $('#video').fadeOut(1000);
+  }
+  else {
+    noPosition.style.display = 'none';
+    document.getElementById('video').style.display = 'none';
+    document.getElementsByClassName('arrow bounce')[0].className += ' not';
+  }
   document.getElementById('a').style.display = 'inline-block';
   document.getElementById('fade').style.display = 'inline-block';
   selectedCompany.style.display = 'inline-block';
@@ -138,20 +152,18 @@ function loadCalendarEvents(serviceId) {
     if (xhttp.readyState == 4 && xhttp.status == 200) {
       // console.log(xhttp.responseText);
       var result = JSON.parse(xhttp.responseText);
+      var days = result.days;
       var events = [];
-      for (var i = 0; i < result.days.length; i++) {
-        if (parseFloat(result.service[0].time) <= parseFloat(result.days[i].time_left)) {
-          var event = {};
-          event.Title = '';
-          event.Date = new Date(result.days[i].start.replace(/-/g, '/').substring(0,10));
-          events.push(event);
-        }
+      for (var i = 0; i < days.length; i++) {
+        var event = {};
+        event.Title = '';
+        event.Date = new Date(result.days[i].start.replace(/-/g, '/').substring(0,10));
+        events.push(event);
       }
-      // calendar(events);
       activateCalendar(companyId.getAttribute('data-company-id'), events);
     }
   }
-  xhttp.open('POST', baseUrl + '/mobile_api/post/opening_hours.get.php', true);
+  xhttp.open('POST', '/get/times', true);
   xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   xhttp.send('company_id=' + companyId.getAttribute('data-company-id') + '&service_id=' + serviceId);
   // xhttp.send('company_id=3605&service_id=1');
@@ -306,6 +318,32 @@ address.onchange = function() {
     list.style.display = 'none';
   }
 }
+var servicesList = document.getElementById('services');
+function showServices(services, employers) {
+  $(servicesList).empty();
+  console.log(services);
+  if (services.length > 0) {
+        var nextCategory = false;
+        var previousCategory = null;
+        for (var i = 0; i < services.length; i++) {
+          nextCategory = (previousCategory !== services[i].category) ? true : false;
+          if (nextCategory) {
+            $(chooseServiceList).append('<div class="service-category">' + services[i].category + '</div>');
+            $(chooseServiceList).append(renderService(services[i].id, services[i].name, services[i].price, services[i].time));
+            document.getElementsByClassName('label-service')[i].addEventListener('click', serviceCheckbox, false);
+          }
+          else {
+            $(chooseServiceList).append(renderService(services[i].id, services[i].name, services[i].price, services[i].time));
+            document.getElementsByClassName('label-service')[i].addEventListener('click', serviceCheckbox, false);
+          }
+          previousCategory = services[i].category;
+        }
+      }
+      $(selectStylist).empty();
+        for (var i = 0; i < employers.length; i++) {
+          $(selectStylist).append('<li>' + employers[i].first_name + ' ' + employers[i].last_name + '</li>');
+        }
+}
 function getServicesFromCalendar(companyId, date) {
   xhttp.onreadystatechange = function() {
     if (xhttp.readyState == 4 && xhttp.status == 200) {
@@ -317,34 +355,13 @@ function getServicesFromCalendar(companyId, date) {
       console.log(data);
       var services = data.services;
       var employers = data.employers;
-      if (services.length > 0) {
-        var nextCategory = false;
-        var previousCategory = null;
-        $(chooseServiceList).empty();
-        for (var i = 0; i < services.length; i++) {
-          nextCategory = (previousCategory !== services[i].category_name) ? true : false;
-          if (nextCategory) {
-            $(chooseServiceList).append('<div class="service-category">' + services[i].category_name + '</div>');
-            $(chooseServiceList).append(renderService(services[i].id, services[i].description, services[i].price, services[i].time));
-            document.getElementsByClassName('label-service')[i].addEventListener('click', serviceCheckbox, false);
-          }
-          else {
-            $(chooseServiceList).append(renderService(services[i].id, services[i].description, services[i].price, services[i].time));
-            document.getElementsByClassName('label-service')[i].addEventListener('click', serviceCheckbox, false);
-          }
-          previousCategory = services[i].category_name;
-        }
-        $(selectStylist).empty();
-        for (var i = 0; i < employers.length; i++) {
-          $(selectStylist).append('<li>' + employers[i].first_name + ' ' + employers[i].last_name + '</li>');
-        }
-      }
+      showServices(services, employers);
     }
   }
   // console.log(getTimestamp());
-  xhttp.open('POST', baseUrl + '/mobile_api/post/services.php', true);
+  xhttp.open('POST', '/get/services', true);
   xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-  xhttp.send('company_id=' + companyId + '&timestamp=' + getTimestamp() + '&only_services_and_employers=1');
+  xhttp.send('company_id=' + companyId + '&timestamp=' + getTimestamp());
 }
 function activateCalendar(companyId, events, destroy) {
   var reloadCalendar = destroy || false;
@@ -356,27 +373,22 @@ function activateCalendar(companyId, events, destroy) {
   $(timestamp).datepicker({
     dateFormat: 'yy-mm-dd',
     firstDay: 1,
+    minDate: 0,
     beforeShowDay: function(date) {
-          // var result = [true, '', null];
           var matching = $.grep(events, function(event) {
-              return event.Date.valueOf() === date.valueOf();
+            return event.Date.valueOf() === date.valueOf();
           });
 
-          var string = jQuery.datepicker.formatDate('yy-mm-dd', date);
-          if (matching.length) {
-              // result = [true, 'highlight', null];
-              return [true, 'available-day', null];
-          }
-          else {
-            return [true, 'busy-day', null];
-            // return [false];
-          }
+          return (matching.length) ? [true, 'available-day', null] : [false, false, null];
         },
     onSelect: function(date) {
       $(timestamp).next('i').show();
       console.log(date);
       $(timestamp).val(date);
-      getServicesFromCalendar(companyId);
+      booking.time = date;
+      checkIfBookingReady();
+      if (!booking.service)
+        getServicesFromCalendar(companyId);
     }
   });
 }
@@ -384,8 +396,10 @@ var chooseServiceList = document.getElementById('services');
 function checkCheckbox(checkbox) {
   if (!checkbox.checked) {
     checkbox.checked = true;
-    serviceChosen = true;
-    loadCalendarEvents(checkbox.value);
+    booking.service = checkbox.value;
+    checkIfBookingReady();
+    if (!booking.time)
+      loadCalendarEvents(checkbox.value);
   }
   else {
     checkbox.checked = false;
@@ -415,36 +429,20 @@ function renderService(id, description, price, time) {
   var time_string = (nr % 1 == 0) ? nr + 'h' : time + ' min'
   return '<input type="radio" name="service" value="' + id +'" class="input-service"><label class="label-service" for="service"><span class="service-description">' + description + '</span><span class="service-price"> ' + price + ' kr</span><span class="service-time">' + time_string + '</span><i class="ion-plus"></i><i class="ion-minus"></i></label>';
 }
-function getServices(company_id, company_data, days_available, day) {
+function getServices(company_id, company_data, days_available, day, fadeInCompanyPage) {
   xhttp.onreadystatechange = function() {
     if (xhttp.readyState == 4 && xhttp.status == 200) {
       console.log(xhttp.responseText);
       var data = JSON.parse(xhttp.responseText);
       
+      var fade = fadeInCompanyPage || false;
       var company = data.company;
-      showCompanyPage();
+      showCompanyPage(fade);
       var services = data.services;
       var employers = data.employers;
       var open = data.hours;
-      if (services.length > 0) {
-        var nextCategory = false;
-        var previousCategory = null;
-        for (var i = 0; i < services.length; i++) {
-          nextCategory = (previousCategory !== services[i].category_name) ? true : false;
-          if (nextCategory) {
-            $(chooseServiceList).append('<div class="service-category">' + services[i].category + '</div>');
-            $(chooseServiceList).append(renderService(services[i].id, services[i].name, services[i].price, services[i].time));
-            document.getElementsByClassName('label-service')[i].addEventListener('click', serviceCheckbox, false);
-          }
-          else {
-            $(chooseServiceList).append(renderService(services[i].id, services[i].name, services[i].price, services[i].time));
-            document.getElementsByClassName('label-service')[i].addEventListener('click', serviceCheckbox, false);
-          }
-          previousCategory = services[i].category;
-        }
-        for (var i = 0; i < employers.length; i++) {
-          $(selectStylist).append('<li>' + employers[i].first_name + ' ' + employers[i].last_name + '</li>');
-        }
+      console.log(company.name);
+      showServices(services, employers);
         if (days_available) {
           var events = [];
           for (var i = 0; i < days_available.length; i++) {
@@ -465,7 +463,7 @@ function getServices(company_id, company_data, days_available, day) {
         // selectableHours = data.times;
         activateCalendar(company_id, events, true);
         // $(chooseServiceList).append('<div id="go-to-booking">Boka <i class="ion-checkmark-round"></i></div>');
-      }
+      
       document.getElementById('selected-company').style.display = 'block';
       document.getElementById('company-name').innerHTML = company.name;
       document.getElementById('company-name').setAttribute('data-company-id', company.id);
@@ -476,7 +474,7 @@ function getServices(company_id, company_data, days_available, day) {
       $('html, body').animate({scrollTop: 0}, 1500);
     }
   }
-  xhttp.open('POST', '/get-services', true);
+  xhttp.open('POST', '/get/services', true);
   xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   xhttp.send('company_id=' + company_id + '&timestamp=' + getTimestamp());
 }
@@ -509,7 +507,7 @@ search.onclick = function(e) {
         });
       }
       if (result.go_to_company) {
-        getServices(result.company[0].id, result.company[0], result.days_available, result.day[0]);
+        getServices(result.company[0].id, result.company[0], result.days_available, result.day[0], true);
       }
       if (result.show_google_maps) {
           if (result.not_found) {
@@ -583,45 +581,130 @@ goToTimes.addEventListener('click', function() {
   $(selectTime).toggle();    
 });
 selectTime.addEventListener('click', function(event) {
+  booking.time += ' ' + event.target.innerHTML;
+  checkIfBookingReady();
   goToTimes.innerHTML = event.target.innerHTML + ' <i class="ion-android-close"></i>';
   selectTime.style.display = 'none';
 });
 
-document.getElementById('book').onclick = function() {
-    var booking = {};
-        booking.datetime = $(timestamp).val();
-        booking.fname = document.getElementById('fname').value;
-        booking.lname = document.getElementById('lname').value;
-        booking.mail = document.getElementById('mail').value;
-        booking.tel = document.getElementById('tel').value;
-        booking.service = document.querySelector('input[name=service]:checked').value;
-        console.log(booking);
-        return;
-        var xhttp = new XMLHttpRequest();
+// document.getElementById('book').onclick = function() {
+//     var booking = {};
+//         booking.datetime = $(timestamp).val();
+//         booking.fname = document.getElementById('fname').value;
+//         booking.lname = document.getElementById('lname').value;
+//         booking.mail = document.getElementById('mail').value;
+//         booking.tel = document.getElementById('tel').value;
+//         booking.service = document.querySelector('input[name=service]:checked').value;
+//         console.log(booking);
+//         return;
+//         var xhttp = new XMLHttpRequest();
+//         xhttp.onreadystatechange = function() {
+//             if (xhttp.readyState == 4 && xhttp.status == 200) {
+//                 console.log(xhttp.responseText);
+//                 console.log(booking);
+//                 if (isNaN(parseInt(xhttp.responseText))) {
+//                     var error = JSON.parse(xhttp.responseText);
+//                     var n = noty({layout:'center',type:'error',text:'Det gick inte att boka kl ' + error.start + '-' + error.end + ' eftersom ' + error.timeBooked[0].start.substring(11,16) + ' är upptaget'});
+//                 }
+//                 else {
+//                     // location.reload(true);
+//                     getOpeningHours(timeToBook.substring(0,10));
+//                     $(modalDialog).removeClass('md-show');
+//                     var n = noty({layout:'center',type:'success',text:'Bokning genomförd<i class="ion-checkmark-circled" style="margin-left:5px;"></i>'});
+//                 }
+//             }
+//         }
+//         xhttp.open('POST', 'mobile_api/post/bookings.set.php', true);
+//         xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+//         xhttp.send('booking=' + JSON.stringify(booking));
+// }
+var bookModal = document.getElementById('confirm-modal');
+var loaderModal = document.getElementById('loader-modal');
+function doBooking() {
+  var company_id = document.getElementById('company-name').getAttribute('data-company-id');
+  var xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function() {
+            if (xhttp.readyState == 4 && xhttp.status == 200) {
+                var result = JSON.parse(xhttp.responseText);
+                if (result.success) {
+                  document.getElementById('wait').className = 'showbox display-block';
+                  document.getElementById('start_booking').value = 'Laddar..';
+                  document.getElementById('payment').innerHTML = result.go_to_payment;
+                  document.getElementById('paymentForm').submit();
+                }
+              }
+                
+            }
+        console.log(xhttp);
+        xhttp.open('POST', '/booking/do', true);
+        xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        xhttp.setRequestHeader('X-CSRF-TOKEN', token);
+        xhttp.send('company=' + company_id + '&service=' + booking.service + '&time=' + booking.time);  
+}
+function startBooking() {
+  var xhttp = new XMLHttpRequest();
+  xhttp.onreadystatechange = function() {
+            if (xhttp.readyState == 4 && xhttp.status == 200) {
+                console.log(xhttp.responseText);
+                var result = JSON.parse(xhttp.responseText);
+                if (result.is_logged_in) {
+                  var user = result.user;
+                  document.getElementById('company').innerHTML = document.getElementById('company-name').innerHTML;
+                  document.getElementById('address').innerHTML = document.getElementById('company-address').innerHTML;
+                  document.getElementById('my-name').innerHTML = user.first_name + ' ' + user.last_name;
+                  document.getElementById('my-email').innerHTML = user.email;
+                  document.getElementById('my-tel').innerHTML = user.phone_number;
+                  document.getElementById('start_booking').onclick = function(e) {
+                    e.preventDefault();
+                    doBooking();
+                  }
+
+                  bookModal.className += ' md-show';
+                  document.getElementsByClassName('md-overlay')[0].onclick = function() {
+                    bookModal.className = 'md-modal md-effect-1';
+                  }
+                }
+                else {
+                  document.getElementById('login-action').value = 'to_booking';
+                  document.getElementById('login-modal').className += ' md-show';
+                  bookModal.className = 'md-modal md-effect-1';
+                  document.getElementsByClassName('md-overlay')[0].onclick = function() {
+                    document.getElementById('login-modal').className = 'md-modal md-effect-1';
+                  }
+                }
+                
+            }
+        }
+        console.log(xhttp);
+        xhttp.open('POST', '/booking/start', true);
+        xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+        xhttp.setRequestHeader('X-CSRF-TOKEN', token);
+        xhttp.send();
+}
+document.getElementById('go-to-booking').onclick = function() {
+  startBooking();   
+}
+var token = document.getElementById('csrf-token').getAttribute('data-value');
+document.getElementById('login-form').onsubmit = function(e) {
+  e.preventDefault();
+  var email = document.getElementById('email');
+  var password = document.getElementById('password');
+  var xhttp = new XMLHttpRequest();
         xhttp.onreadystatechange = function() {
             if (xhttp.readyState == 4 && xhttp.status == 200) {
                 console.log(xhttp.responseText);
-                console.log(booking);
-                if (isNaN(parseInt(xhttp.responseText))) {
-                    var error = JSON.parse(xhttp.responseText);
-                    var n = noty({layout:'center',type:'error',text:'Det gick inte att boka kl ' + error.start + '-' + error.end + ' eftersom ' + error.timeBooked[0].start.substring(11,16) + ' är upptaget'});
+                var result = JSON.parse(xhttp.responseText);
+                if (result.success) {
+                  var action = document.getElementById('login-action').value;
+                  if (action === 'to_booking') {
+                    startBooking();
+                  }
                 }
-                else {
-                    // location.reload(true);
-                    getOpeningHours(timeToBook.substring(0,10));
-                    $(modalDialog).removeClass('md-show');
-                    var n = noty({layout:'center',type:'success',text:'Bokning genomförd<i class="ion-checkmark-circled" style="margin-left:5px;"></i>'});
-                }
+                
             }
         }
-        xhttp.open('POST', 'mobile_api/post/bookings.set.php', true);
+        xhttp.open('POST', '/auth/private', true);
         xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-        xhttp.send('booking=' + JSON.stringify(booking));
-}
-var bookModal = document.getElementById('book-modal');
-document.getElementById('go-to-booking').onclick = function() {
-  bookModal.className += ' md-show';
-  document.getElementsByClassName('md-overlay')[0].onclick = function() {
-    bookModal.className = 'md-modal md-effect-1';
-  }
+        xhttp.setRequestHeader('X-CSRF-TOKEN', token);
+        xhttp.send('email=' + email.value + '&password=' + password.value);  
 }
