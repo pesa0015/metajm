@@ -6,6 +6,7 @@ use Auth;
 use App\companies_employers;
 use App\User;
 use Illuminate\Support\Facades\Input;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Redirect;
 
@@ -27,26 +28,28 @@ class LoginController extends Controller
 		return view('auth.login_company');
 	}
 
-	public function authPrivate()
+	public function authPrivate(Request $request)
 	{
-		$email = Input::get('email');
+		$email = $request->email;
 
-		$user = companies_employers::where('email', Input::get('email'))->first();
+		$user = User::where('email', $email)->first();
 
 		if(!$user) {
-			return Redirect::to('login')->withInput()->with('error-email', 'Unknown username.'); 
+			return response()->json(['type' => 'email', 'message' => 'E-postadressen hittades inte.']); 
 		}
 
 		// create our user data for the authentication
 		$userdata = array(
 		    'email'     => $email,
-		    'password'  => Input::get('password')
+		    'password'  => $request->password
 		);
 
+		\Config::set('auth.defaults.guard', 'users');
+
 		if (Auth::attempt($userdata)) {
-			return Redirect::to('/konto');
+			return response()->json(['success' => true]); 
 		}
-		return Redirect::to('login')->withInput()->with('error-password', 'Wrong password.');
+		return response()->json(['type' => 'password', 'message' => 'Fel lösenord.']);
 	}
 
 	public function authCompany()
