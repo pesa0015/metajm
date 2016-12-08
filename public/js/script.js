@@ -330,19 +330,29 @@ function showServices(services, employers) {
           if (nextCategory) {
             $(chooseServiceList).append('<div class="service-category">' + services[i].category + '</div>');
             $(chooseServiceList).append(renderService(services[i].id, services[i].name, services[i].price, services[i].time));
-            document.getElementsByClassName('label-service')[i].addEventListener('click', serviceCheckbox, false);
+            // document.getElementsByClassName('label-service')[i].addEventListener('click', serviceCheckbox, false);
+            document.getElementsByClassName('label-service')[i].onclick = function(e) {
+              callCheckbox(e, 'service');
+            }
           }
           else {
             $(chooseServiceList).append(renderService(services[i].id, services[i].name, services[i].price, services[i].time));
-            document.getElementsByClassName('label-service')[i].addEventListener('click', serviceCheckbox, false);
+            document.getElementsByClassName('label-service')[i].onclick = function(e) {
+              callCheckbox(e, 'service');
+            }
           }
           previousCategory = services[i].category;
         }
       }
+    if (employers.length > 0) {
       $(selectStylist).empty();
         for (var i = 0; i < employers.length; i++) {
-          $(selectStylist).append('<li>' + employers[i].first_name + ' ' + employers[i].last_name + '</li>');
+          $(selectStylist).append(renderEmployer(employers[i].id, employers[i].first_name + ' ' + employers[i].last_name));
+          document.getElementsByClassName('label-employer')[i].onclick = function(e) {
+              callCheckbox(e, 'employer');
+            }
         }
+      }
 }
 function getServicesFromCalendar(companyId, date) {
   xhttp.onreadystatechange = function() {
@@ -393,10 +403,10 @@ function activateCalendar(companyId, events, destroy) {
   });
 }
 var chooseServiceList = document.getElementById('services');
-function checkCheckbox(checkbox) {
+function checkCheckbox(checkbox, type) {
   if (!checkbox.checked) {
     checkbox.checked = true;
-    booking.service = checkbox.value;
+    booking[type] = checkbox.value;
     checkIfBookingReady();
     if (!booking.time)
       loadCalendarEvents(checkbox.value);
@@ -405,9 +415,10 @@ function checkCheckbox(checkbox) {
     checkbox.checked = false;
   }
 }
-function serviceCheckbox() {
-  if (this.className === 'label-service') {
-    checkCheckbox(this.previousSibling);
+function callCheckbox(element, type) {
+  var target = (event.target.nodeName === 'SPAN') ? event.target.parentElement : event.target;
+  if (target.className.indexOf('label') >= 0) {
+    checkCheckbox(target.previousSibling, type);
   }
 }
 function getCompanyInfo(company_id) {
@@ -428,6 +439,9 @@ function renderService(id, description, price, time) {
   var nr = time / 60;
   var time_string = (nr % 1 == 0) ? nr + 'h' : time + ' min'
   return '<input type="radio" name="service" value="' + id +'" class="input-service"><label class="label-service" for="service"><span class="service-description">' + description + '</span><span class="service-price"> ' + price + ' kr</span><span class="service-time">' + time_string + '</span><i class="ion-plus"></i><i class="ion-minus"></i></label>';
+}
+function renderEmployer(id, name) {
+  return '<input type="radio" name="employer" value="' + id +'" class="input-employer"><label class="label-employer label" for="employer">' + name + '</label>';
 }
 function getServices(company_id, company_data, days_available, day, fadeInCompanyPage) {
   xhttp.onreadystatechange = function() {

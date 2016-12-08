@@ -304,7 +304,7 @@ input[type=radio], input[type=checkbox] {
     display: none;
 }
  
-input[type=radio] + label {
+.input-service + label {
     display: block;
     /* Double-sized Checkboxes */
     -ms-transform: scale(1); /* IE */
@@ -655,7 +655,11 @@ input[type=checkbox]:checked + label[for=tattoo] {
     list-style: none;
     padding-left: 15px;
 }
-#select-stylist li {
+#select-stylist input[type=radio]:checked + label {
+    background: #FFFFFF;
+    color: #000000;
+}
+#select-stylist label {
     display: inline-block;
     border: 1px solid #FFFFFF;
     border-radius: 50px;
@@ -663,9 +667,9 @@ input[type=checkbox]:checked + label[for=tattoo] {
     cursor: pointer;
     transition: .5s;
 }
-#select-stylist li:hover {
-    background: #FFFFFF;
-    color: #000000;
+#select-stylist label:hover {
+    color: #B2B2B2;
+    border-color: #B2B2B2;
 }
 #go-to-booking {
     float: right;

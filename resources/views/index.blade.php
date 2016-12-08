@@ -145,7 +145,7 @@
                     <div id="book-top">
                         <div id="book-question">Vad önskar du boka?</div>
                         <div id="go-to-stylist">Välj stylist <i class="ion-android-star-half"></i></div>
-                        <ul id="select-stylist"></ul>
+                        <div id="select-stylist"></div>
                     </div>
                     <div id="services"></div>
                     <div id="go-to-booking" class="disabled" disabled>Boka <i class="ion-checkmark-round"></i></div>
