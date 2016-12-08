@@ -46,4 +46,30 @@ class CompanyController extends Controller
 
         return response()->json(['employers' => $employers, 'days' => $days]);
     }
+
+    public function getHours(Request $request)
+    {
+        $date = $request->date;
+        $company_id = $request->company_id;
+        $service_id = $request->service_id;
+        $employer_id = $request->employer_id;
+
+        $conditions = array(
+                'companies_employers_services.service_id' => $service_id, 
+                'companies_employers_services.company_id' => $company_id
+                );
+
+        if (is_numeric($employer_id)) 
+            $conditions['companies_employers_services.employer_id'] = $employer_id;
+
+        $times = \App\Time::join('companies_employers_services', 'times.employer_id', '=', 'companies_employers_services.employer_id')
+                    ->join('services', 'companies_employers_services.employer_id', '=', 'companies_employers_services.employer_id')
+                    ->where($conditions)
+                    ->whereDate('times.timestamp', '=', $date)
+                    ->whereNull('booking_id')
+                    ->groupBy('times.timestamp')
+                    ->get(['times.timestamp']);
+
+        return response()->json(['times' => $times, 'success' => true]);
+    }
 }

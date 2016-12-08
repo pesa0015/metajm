@@ -373,6 +373,24 @@ function getServicesFromCalendar(companyId, date) {
   xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   xhttp.send('company_id=' + companyId + '&timestamp=' + getTimestamp());
 }
+function getHours(date) {
+  xhttp.onreadystatechange = function() {
+    if (xhttp.readyState == 4 && xhttp.status == 200) {
+      var data = JSON.parse(xhttp.responseText);
+      if (!data.success)
+        return;
+
+      $(selectTime).empty();
+      var hours = data.times;
+      for (var i = 0; i < hours.length; i++) {
+        $(selectTime).append('<li>' + moment(hours[i].timestamp).format('HH:mm') + '</li>');
+      }
+    }
+  }
+  xhttp.open('POST', '/get/hours', true);
+  xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+  xhttp.send('date=' + date + '&company_id=' + companyId.getAttribute('data-company-id') + '&service_id=' + booking.service + '&employer_id=' + booking.employer);
+}
 function activateCalendar(companyId, events, destroy) {
   var reloadCalendar = destroy || false;
   console.log(events);
@@ -399,6 +417,7 @@ function activateCalendar(companyId, events, destroy) {
       checkIfBookingReady();
       if (!booking.service)
         getServicesFromCalendar(companyId);
+      getHours(date);
     }
   });
 }
