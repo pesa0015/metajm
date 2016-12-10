@@ -24,6 +24,7 @@ class CompanyController extends Controller
                     ->join('companies', 'services.category_id', '=', 'companies.id')
                     ->select('services.*', 'categories.name AS category')
                     ->where('companies_employers_services.company_id', $companyId)
+                    ->groupBy('companies_employers_services.service_id')
                     ->get();
         return response()->json(['company' => $company, 'services' => $services, 'employers' => $employers]);
     }
