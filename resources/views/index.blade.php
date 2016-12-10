@@ -135,7 +135,7 @@
                         <!-- <div id="go-to-days">Välj dag <i class="fa fa-calendar-o"></i></div> -->
                         <input type="text" id="go-to-days" class="timestamp" value="Alla dagar"><i class="ion-ios-close tooltip" title="Återställ datum"></i>
                         <!-- <div><i class="ion-android-alert"></i></div> -->
-                        <div id="go-to-times">Välj tid <i class="ion-ios-clock-outline"></i></div>
+                        <div id="go-to-times"><span>Välj tid</span><i class="ion-ios-clock-outline"></i></div>
                         <ul id="select-time"></ul>
                         <div id="onselectTarget"></div>
                     </div>

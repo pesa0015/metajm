@@ -24,6 +24,33 @@ function checkIfBookingReady() {
     $('#go-to-booking').removeClass('disabled').css('cursor', 'pointer').removeAttr('disabled');
 }
 
+var contains = function(needle) {
+    // Per spec, the way to identify NaN is that it is not equal to itself
+    var findNaN = needle !== needle;
+    var indexOf;
+
+    if(!findNaN && typeof Array.prototype.indexOf === 'function') {
+        indexOf = Array.prototype.indexOf;
+    } else {
+        indexOf = function(needle) {
+            var i = -1, index = -1;
+
+            for(i = 0; i < this.length; i++) {
+                var item = this[i];
+
+                if((findNaN && item !== item) || item === needle) {
+                    index = i;
+                    break;
+                }
+            }
+
+            return index;
+        };
+    }
+
+    return indexOf.call(this, needle) > -1;
+};
+
 Date.prototype.yyyymmdd = function() {
    var yyyy = this.getFullYear().toString();
    var mm = (this.getMonth()+1).toString(); // getMonth() is zero-based
@@ -381,8 +408,17 @@ function getHours(date) {
 
       $(selectTime).empty();
       var hours = data.times;
+      var hoursArray = [];
+      var hour = null;
       for (var i = 0; i < hours.length; i++) {
-        $(selectTime).append('<li>' + moment(hours[i].timestamp).format('HH:mm') + '</li>');
+        hour = moment(hours[i].timestamp).format('HH:mm');
+        hoursArray.push(hour);
+        $(selectTime).append('<li>' + hour + '</li>');
+      }
+      if (!contains.call(hoursArray, booking.time.hour) && booking.time.hour) {
+        goToTimes.getElementsByTagName('span')[0].innerHTML = 'Välj tid';
+        booking.time.hour = false;
+        $('#go-to-booking').addClass('disabled').css('cursor', 'not-allowed').attr('disabled', true);
       }
     }
   }
@@ -615,7 +651,7 @@ goToTimes.addEventListener('click', function() {
 selectTime.addEventListener('click', function(event) {
   booking.time.hour = event.target.innerHTML;
   checkIfBookingReady();
-  goToTimes.innerHTML = event.target.innerHTML + ' <i class="ion-android-close"></i>';
+  goToTimes.getElementsByTagName('span')[0].innerHTML = event.target.innerHTML;
   selectTime.style.display = 'none';
 });
 
