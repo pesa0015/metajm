@@ -6,9 +6,51 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\companies;
 use App\companies_employers;
+use App\TimeLeft;
+use DB;
 
 class CompanyController extends Controller
 {
+    public function company($search)
+    {
+        $company = companies::where('id', $search)->orWhere('name', $search)->first();
+        $employers = false;
+        if ($company->show_employers == 1)
+            $employers = companies_employers::where('company_id', $company->id)->get();
+        $services = \App\CompanyEmployerService::join('services', 'companies_employers_services.service_id', '=', 'services.id')
+                    ->join('categories', 'services.category_id', '=', 'categories.id')
+                    ->join('companies', 'services.category_id', '=', 'companies.id')
+                    ->select('services.*', 'categories.name AS category')
+                    ->where('companies_employers_services.company_id', $company->id)
+                    ->groupBy('companies_employers_services.service_id')
+                    ->get();
+        $serviceWithShortestTime = \App\CompanyEmployerService::where('companies_employers_services.company_id', $company->id)->join('services', 'service_id', '=', 'services.id')->orderBy('services.time', 'ASC')->first();
+        $days = TimeLeft::select('start')
+                        ->where('company_id', $company->id)
+                        ->where('max_available_minutes', '>=', $serviceWithShortestTime->time)
+                        ->groupBy('start')
+                        ->get();
+        $day = TimeLeft::select(DB::raw('MIN(start) AS open, MAX(close) AS close'))
+                       ->where('company_id', $company->id)->whereDate('start', '=', 'CURDATE()')
+                       ->first();
+        return array(
+            'go_to_company' => true,
+            'company' => $company, 
+            'services' => $services,
+            'employers' => $employers, 
+            'serviceWithShortestTime' => $serviceWithShortestTime,
+            'days_available' => $days,
+            'day' => $day
+        );
+    }
+
+    public function getCompany(Request $request)
+    {
+        $id = $request->company;
+
+        return $this->company($id);
+    }
+
 	public function getServices(Request $request)
     {
         $companyId = $request->company_id;
@@ -25,6 +67,18 @@ class CompanyController extends Controller
                     ->groupBy('companies_employers_services.service_id')
                     ->get();
         return response()->json(['company' => $company, 'services' => $services, 'employers' => $employers]);
+    }
+
+    public function getDays(Request $request)
+    {
+        $company = $request->company;
+        return response()->json([
+                'company' => $company, 
+                'services' => $services, 
+                'serviceWithShortestTime' => $serviceWithShortestTime,
+                'available_days' => $days,
+                'day' => $day
+            ]);
     }
 
     public function getTimesAndEmployers(Request $request)

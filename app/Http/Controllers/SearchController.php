@@ -12,6 +12,14 @@ use DB;
 
 class SearchController extends Controller
 {
+    public function isCompany($search)
+    {
+        $company = companies::where('id', $search)->orWhere('name', $search)->first();
+        if ($company)
+            return $company->id;
+        return -1;
+    }
+
     public function liveSearch(Request $request)
     {
         $search = $request->search;
@@ -47,16 +55,9 @@ class SearchController extends Controller
                                   ->get();
             return response()->json(['companies' => $companies, 'show_google_maps' => true]);
         }
-        $company = companies::where('name', $search)->get();
-        if ($company) {
-            $services = \App\CompanyEmployerService::where('companies_employers_services.company_id', $company[0]->id)
-                    ->join('services', 'companies_employers_services.service_id', '=', 'services.id')
-                    ->join('categories', 'services.category_id', '=', 'categories.id')
-                    ->get(['services.*', 'categories.name AS category']);
-            $serviceWithShortestTime = \App\CompanyEmployerService::where('companies_employers_services.company_id', $company[0]->id)->join('services', 'service_id', '=', 'services.id')->orderBy('services.time', 'ASC')->first();
-            $days = TimeLeft::select('start')->where('company_id', 1)->where('max_available_minutes', '>=', 60)->groupBy('start')->get();
-            $day = DB::table('time_left')->select(DB::raw('MIN(start) AS open, MAX(close) AS close'))->where('company_id', $company[0]->id)->whereRaw('DATE(start) = CURDATE()')->get();
-            return response()->json(['go_to_company' => true, 'company' => $company, 'services' => $services, 'days_available' => $days, 'day' => $day]);
+        $company_id = $this->isCompany($search);
+        if ($company_id > 0) {
+            return response()->json(['company_found' => true, 'company_id' => $company_id]);
         }
     }
 

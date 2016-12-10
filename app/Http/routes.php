@@ -14,9 +14,10 @@
 Route::post('booking/done', 'IndexController@check');
 
 Route::group(['prefix' => 'get'], function() {
-	Route::post('services', 'CompanyController@getServices');
+	Route::post('company', 'CompanyController@getCompany');
 	Route::post('times', 'CompanyController@getTimesAndEmployers');
 	Route::post('hours', 'CompanyController@getHours');
+	Route::post('days-available', 'CompanyController@getDays');
 	Route::post('employers', 'CompanyController@getEmployers');
 });
 

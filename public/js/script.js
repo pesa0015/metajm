@@ -426,9 +426,8 @@ function getHours(date) {
   xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   xhttp.send('date=' + date + '&company_id=' + companyId.getAttribute('data-company-id') + '&service_id=' + booking.service + '&employer_id=' + booking.employer);
 }
-function activateCalendar(companyId, events, destroy) {
+function activateCalendar(events, destroy) {
   var reloadCalendar = destroy || false;
-  console.log(events);
   if (reloadCalendar) {
     $(timestamp).val('');
     $(timestamp).datepicker('destroy');
@@ -497,30 +496,42 @@ function renderService(id, description, price, time) {
 function renderEmployer(id, name) {
   return '<input type="radio" name="employer" value="' + id +'" class="input-employer"><label class="label-employer label" for="employer">' + name + '</label>';
 }
-function getServices(company_id, company_data, days_available, day, fadeInCompanyPage) {
+function getAvailableDays() {
   xhttp.onreadystatechange = function() {
     if (xhttp.readyState == 4 && xhttp.status == 200) {
-      console.log(xhttp.responseText);
       var data = JSON.parse(xhttp.responseText);
-      
-      var fade = fadeInCompanyPage || false;
-      var company = data.company;
-      showCompanyPage(fade);
-      var services = data.services;
-      var employers = data.employers;
-      var open = data.hours;
-      console.log(company.name);
-      showServices(services, employers);
-        if (days_available) {
-          var events = [];
+      if (data.success)
+        addEventsToCalendar(data.days);
+    }
+  }
+  xhttp.open('POST', '/get/days_available', true);
+  xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+  xhttp.send('company_id=' + company_id + '&timestamp=' + getTimestamp());
+}
+function addEventsToCalendar(days_available) {
+  var events = [];
           for (var i = 0; i < days_available.length; i++) {
             var event = {};
             event.Title = '';
             event.Date = new Date(days_available[i].start.replace(/-/g, '/').substring(0,10));
             events.push(event);
           }
-        }
-        if (day && moment(day.open).isValid()) {
+          activateCalendar(events, true);
+}
+function getCompany(company, fadeInCompanyPage) {
+  xhttp.onreadystatechange = function() {
+    if (xhttp.readyState == 4 && xhttp.status == 200) {
+      var data = JSON.parse(xhttp.responseText);
+      console.log(data);
+      var fade = fadeInCompanyPage || false;
+      showCompanyPage(fade);
+      var company = data.company;
+      var services = data.services;
+      var employers = data.employers;
+      var day = data.day;
+      showServices(services, employers);
+      addEventsToCalendar(data.days_available);
+        if (moment(day.open).isValid()) {
           $('#hour-start').append(moment(day.open).format('HH:mm'));
           $('#hour-close').append(moment(day.close).format('HH:mm'));
         }
@@ -529,9 +540,8 @@ function getServices(company_id, company_data, days_available, day, fadeInCompan
         }
         
         // selectableHours = data.times;
-        activateCalendar(company_id, events, true);
         // $(chooseServiceList).append('<div id="go-to-booking">Boka <i class="ion-checkmark-round"></i></div>');
-      
+      console.log(company.name);
       document.getElementById('selected-company').style.display = 'block';
       document.getElementById('company-name').innerHTML = company.name;
       document.getElementById('company-name').setAttribute('data-company-id', company.id);
@@ -542,9 +552,9 @@ function getServices(company_id, company_data, days_available, day, fadeInCompan
       $('html, body').animate({scrollTop: 0}, 1500);
     }
   }
-  xhttp.open('POST', '/get/services', true);
+  xhttp.open('POST', '/get/company', true);
   xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-  xhttp.send('company_id=' + company_id + '&timestamp=' + getTimestamp());
+  xhttp.send('company=' + company + '&timestamp=' + getTimestamp());
 }
 document.body.onclick = function() {
   if (!address.activeElement) {
@@ -574,8 +584,8 @@ search.onclick = function(e) {
           theme: 'relax'
         });
       }
-      if (result.go_to_company) {
-        getServices(result.company[0].id, result.company[0], result.days_available, result.day[0], true);
+      if (result.company_found) {
+        getCompany(result.company_id, true);
       }
       if (result.show_google_maps) {
           if (result.not_found) {
@@ -603,8 +613,7 @@ search.onclick = function(e) {
           for (var i = 0; i < result.companies.length; i++) {
             $(companyList).append('<div class="company company-' + isEven(i) + '" data-id="' + result.companies[i].id + '"><h3 class="company-name">' + result.companies[i].name + '</h3><p class="company-address">' + result.companies[i].address + '</p><p class="company-postalcode">' + result.companies[i].postal_code.substring(0,3) + ' ' + result.companies[i].postal_code.substring(3,5) + ' ' + result.companies[i].city +'</p></div>');
             document.getElementsByClassName('company')[i].onclick = function() {
-              // getCompanyInfo(this.getAttribute('data-id'));
-              getServices(this.getAttribute('data-id'), this.childNodes);
+              getCompany(this.getAttribute('data-id'), false);
             };
           }
         }
