@@ -17,11 +17,10 @@ var selectStylist = document.getElementById('select-stylist');
 var searchResults1 = document.getElementById('first-ul');
 var searchResults2 = document.getElementById('second-ul');
 
-var booking = {'service': false, 'time': false, 'employer': false};
+var booking = {'service': false, 'time': {'day': false, 'hour': false}, 'employer': false};
 
 function checkIfBookingReady() {
-  if (!booking.time) return;
-  if (booking.service && booking.time.indexOf(':') != -1)
+  if (booking.service && booking.time.day && booking.time.hour)
     $('#go-to-booking').removeClass('disabled').css('cursor', 'pointer').removeAttr('disabled');
 }
 
@@ -413,7 +412,7 @@ function activateCalendar(companyId, events, destroy) {
       $(timestamp).next('i').show();
       console.log(date);
       $(timestamp).val(date);
-      booking.time = date;
+      booking.time.day = date;
       checkIfBookingReady();
       if (!booking.service)
         getServicesFromCalendar(companyId);
@@ -614,7 +613,7 @@ goToTimes.addEventListener('click', function() {
   $(selectTime).toggle();    
 });
 selectTime.addEventListener('click', function(event) {
-  booking.time += ' ' + event.target.innerHTML;
+  booking.time.hour = event.target.innerHTML;
   checkIfBookingReady();
   goToTimes.innerHTML = event.target.innerHTML + ' <i class="ion-android-close"></i>';
   selectTime.style.display = 'none';
@@ -672,7 +671,7 @@ function doBooking() {
         xhttp.open('POST', '/booking/do', true);
         xhttp.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
         xhttp.setRequestHeader('X-CSRF-TOKEN', token);
-        xhttp.send('company=' + company_id + '&service=' + booking.service + '&time=' + booking.time);  
+        xhttp.send('company=' + company_id + '&service=' + booking.service + '&time=' + booking.time.day + ' ' + booking.time.hour);  
 }
 function startBooking() {
   var xhttp = new XMLHttpRequest();
