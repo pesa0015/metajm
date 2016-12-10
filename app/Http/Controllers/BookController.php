@@ -104,7 +104,7 @@ class BookController extends Controller
         // Then set any additional required request attributes as detailed below. (See Svea\PaymentMethodPayment and Svea\HostedPayment classes for details.)
         $myCardOrderRequest
             ->setCardPageLanguage("SV")                                     // ISO639 language code, i.e. "SV", "EN" etc. Defaults to English.
-            ->setReturnUrl('http://metajm.se/booking/done'); // The return url where we receive and process the finished request response
+            ->setReturnUrl(\URL::to('/') . '/booking/done'); // The return url where we receive and process the finished request response
         // Get a payment form object which you can use to send the payment request to Svea
         $myCardOrderPaymentForm = $myCardOrderRequest->getPaymentForm();
 
