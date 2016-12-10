@@ -43,6 +43,7 @@ class SearchController extends Controller
                                   ->join('categories', 'services.id', '=', 'services.category_id')
                                   ->join('companies_employers_services', 'services.id', '=', 'companies_employers_services.service_id')
                                   ->where('categories.name', $search)
+                                  ->groupBy('companies_employers_services.company_id')
                                   ->get();
             return response()->json(['companies' => $companies, 'show_google_maps' => true]);
         }
