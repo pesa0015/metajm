@@ -29,7 +29,7 @@ html, body {
 #selected-company {
     display: none;
 }
-.hlight {
+.hlight, #results li:hover {
     background: #F4E8E6;
 }
 .available-day {
@@ -99,7 +99,8 @@ nav ul li a:not(#login-type):hover {
     display: block;
     text-align: left;
     margin: 0;
-    padding: 9px 0 9px 10px;
+    padding: 9px 0 9px 30px;
+    cursor: pointer;
 }
 #results #first span, #results #second span {
     font-weight: 900;

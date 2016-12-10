@@ -286,7 +286,8 @@ function checkArray(array, a) {
   $('#results').append(html);
 }
 
-address.onkeydown = function(e) {
+address.onkeyup = function(e) {
+  var input = this;
   xhttp.onreadystatechange = function() {
     if (xhttp.readyState == 4 && xhttp.status == 200) {
       // console.log(xhttp.responseText);
@@ -296,16 +297,23 @@ address.onkeydown = function(e) {
       if (e.keyCode != 40 && e.keyCode != 38)
         $(list).empty();
       list.style.display = 'block';
-      if (result.length > 0) {
-        address.style.borderBottomLeftRadius = '0';
-        address.style.borderBottomRightRadius = '0';
+      if (result.companies.length > 0 || result.categories.length > 0) {
+        input.style.borderBottomLeftRadius = '0';
+        input.style.borderBottomRightRadius = '0';
+        input.style.borderBottom = '1px solid #000000';
       }
       for (var i = 0; i < companies.length; i++) {
         $(list).append('<li class="search-item-result">' + companies[i].name + '</li>');
       }
       for (var i = 0; i < categories.length; i++) {
         $(list).append('<li class="search-item-result">' + categories[i].name + '</li>');
-      }      
+      }
+      $('.search-item-result').click(function(){
+        input.value = this.innerHTML;
+        input.style.borderBottomLeftRadius = '50px';
+        input.style.borderBottomRightRadius = '50px';
+        input.style.borderBottom = '1px solid #FFFFFF';
+      });      
     }
   }
   var $hlight = $('li.hlight'), $div = $('li.search-item-result');
@@ -322,7 +330,7 @@ address.onkeydown = function(e) {
       }
   if (e.keyCode == 40 || e.keyCode == 38) {
     list.style.display = 'block';
-    this.value = document.getElementsByClassName('hlight')[0].innerHTML;
+    input.value = document.getElementsByClassName('hlight')[0].innerHTML;
     return;
   }
   if (this.value.length > 2) {
@@ -332,16 +340,17 @@ address.onkeydown = function(e) {
     xhttp.send('search=' + this.value);
   }
   else {
-    address.style.borderBottomLeftRadius = '50px';
-    address.style.borderBottomRightRadius = '50px';
+    this.style.borderBottomLeftRadius = '50px';
+    this.style.borderBottomRightRadius = '50px';
+    this.style.borderBottom = '1px solid #FFFFFF';
     list.style.display = 'none';
   }
 }
 address.onchange = function() {
-  if (this.value.length == 0) {
+  if (list.style.display === 'none') {
     address.style.borderBottomLeftRadius = '50px';
     address.style.borderBottomRightRadius = '50px';
-    list.style.display = 'none';
+    address.style.borderBottom = '1px solid #FFFFFF';
   }
 }
 var servicesList = document.getElementById('services');
