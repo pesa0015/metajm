@@ -4,7 +4,7 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class companies extends Model
+class Company extends Model
 {
 	public $timestamps = false;
     protected $fillable = [

@@ -7,8 +7,8 @@ use App\Time;
 use App\TimeLeft;
 use App\Service;
 use App\CompanyEmployerService;
-use App\companies;
-use App\companies_employers;
+use App\Company;
+use App\CompanyEmployer;
 use Auth;
 use DateTime;
 use DateInterval;
@@ -23,7 +23,7 @@ class EmployerController extends Controller
 
 	public function start()
 	{
-		$user = companies_employers::with('company')->find(Auth::user()->id);
+		$user = CompanyEmployer::with('company')->find(Auth::user()->id);
 		return view('company.start', ['user' => $user]);
 	}
 
@@ -50,7 +50,7 @@ class EmployerController extends Controller
 	{
 		\App::setLocale('sv');
 		$days = array('monday','tuesday','wednesday','thursday','friday','saturday','sunday');
-		$my_days_json = companies_employers::select('default_opening_hours AS hours')->where('email', [Auth::user()->email])->first();
+		$my_days_json = CompanyEmployer::select('default_opening_hours AS hours')->where('email', [Auth::user()->email])->first();
 		$my_days = json_decode($my_days_json->hours);
 		$days_open = array();
 		if ($my_days) {
@@ -95,7 +95,7 @@ class EmployerController extends Controller
 				  .',"fri":' . isOpen($day->fri) 
 				  .',"sat":' . isOpen($day->sat) 
 				  .',"sun":' . isOpen($day->sun) . '}';
-		$employer = companies_employers::find(Auth::user()->id);
+		$employer = CompanyEmployer::find(Auth::user()->id);
 		$employer->default_opening_hours = $default;
 		if ($day->repeat_weeks) 
 			$employer->repeat_weeks = $day->repeat_weeks;

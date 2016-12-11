@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Auth;
-use App\companies_employers;
+use App\CompanyEmployer;
 use App\User;
 use Illuminate\Support\Facades\Input;
 use Illuminate\Http\Request;
@@ -56,7 +56,7 @@ class LoginController extends Controller
 	{
 		$email = Input::get('email');
 
-		$user = companies_employers::where('email', Input::get('email'))->first();
+		$user = CompanyEmployer::where('email', Input::get('email'))->first();
 
 		if(!$user) {
 			return Redirect::to('login')->withInput()->with('error-email', 'Unknown username.'); 
@@ -69,7 +69,7 @@ class LoginController extends Controller
 		);
 
 		if (Auth::attempt($userdata)) {
-			$user = companies_employers::with('company')->find(Auth::user()->id);
+			$user = CompanyEmployer::with('company')->find(Auth::user()->id);
 			Auth::user()->company->id = $user->company->id;
 			Auth::user()->company->name = $user->company->name;
 			return Redirect::to('/company/start');

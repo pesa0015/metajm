@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Http\Controllers\Controller;
 use App\Booking;
-use App\companies;
+use App\Company;
 use App\TimeLeft;
 use App\Time;
 use App\Category;
@@ -34,7 +34,7 @@ class BookController extends Controller
         if (!Auth::check()) 
             return response()->json(['success' => false]);
 
-        $company = companies::find($companyId);
+        $company = Company::find($companyId);
         $service = Service::with('category')->find($serviceId);
         $price = (float) $service->price;
 

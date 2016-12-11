@@ -4,8 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests;
-use App\companies;
-use App\companies_employers;
+use App\Company;
+use App\CompanyEmployer;
 use App\TimeLeft;
 use DB;
 
@@ -13,10 +13,10 @@ class CompanyController extends Controller
 {
     public function company($search)
     {
-        $company = companies::where('id', $search)->orWhere('name', $search)->first();
+        $company = Company::where('id', $search)->orWhere('name', $search)->first();
         $employers = false;
         if ($company->show_employers == 1)
-            $employers = companies_employers::where('company_id', $company->id)->get();
+            $employers = CompanyEmployer::where('company_id', $company->id)->get();
         $services = \App\CompanyEmployerService::join('services', 'companies_employers_services.service_id', '=', 'services.id')
                     ->join('categories', 'services.category_id', '=', 'categories.id')
                     ->join('companies', 'services.category_id', '=', 'companies.id')
@@ -55,10 +55,10 @@ class CompanyController extends Controller
     {
         $companyId = $request->company_id;
 
-        $company = companies::find($companyId);
+        $company = Company::find($companyId);
         $employers = false;
         if ($company->show_employers == 1)
-            $employers = companies_employers::where('company_id', $companyId)->get();
+            $employers = CompanyEmployer::where('company_id', $companyId)->get();
         $services = \App\CompanyEmployerService::join('services', 'companies_employers_services.service_id', '=', 'services.id')
                     ->join('categories', 'services.category_id', '=', 'categories.id')
                     ->join('companies', 'services.category_id', '=', 'companies.id')

@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Http\Requests;
-use App\companies;
+use App\Company;
 use App\TimeLeft;
 use App\Category;
 use App\Service;
@@ -14,7 +14,7 @@ class SearchController extends Controller
 {
     public function isCompany($search)
     {
-        $company = companies::where('id', $search)->orWhere('name', $search)->first();
+        $company = Company::where('id', $search)->orWhere('name', $search)->first();
         if ($company)
             return $company->id;
         return -1;
@@ -23,7 +23,7 @@ class SearchController extends Controller
     public function liveSearch(Request $request)
     {
         $search = $request->search;
-        $companies = companies::where('name', 'LIKE', "%{$search}%")->get();
+        $companies = Company::where('name', 'LIKE', "%{$search}%")->get();
         $categories = Category::where('name', 'LIKE', "%{$search}%")->get();
         return response()->json(['companies' => $companies, 'categories' => $categories]);
     }
@@ -46,7 +46,7 @@ class SearchController extends Controller
         }
         $category = Category::where('name', $search)->get();
         if (!$category->isEmpty()) {
-            $companies = companies::select('companies.*')
+            $companies = Company::select('companies.*')
                                   ->join('services', 'companies.id', '=', 'services.company_id')
                                   ->join('categories', 'services.id', '=', 'services.category_id')
                                   ->join('companies_employers_services', 'services.id', '=', 'companies_employers_services.service_id')
