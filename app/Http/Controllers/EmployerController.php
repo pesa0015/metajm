@@ -106,83 +106,13 @@ class EmployerController extends Controller
 		if (!$time->isEmpty())
 			return response()->json(['success' => true]);
 
-		$today = new DateTime(date('Y-m-d'));
-		$end = new DateTime(date('Y-m-d'));
+		$save = new \App\Classes\SaveTime;
+		$user = (object) array(
+					'company_id' => 1, 
+					'id' => 1
+				);
+		$last_day = $save->time($user, date('Y-m-d'), $day, $day->repeat_weeks * 7, false, true);
 
-		$interval = new DateInterval('P1D');
-
-		$period = new DatePeriod($today, $interval, $end->modify('+' . $day->repeat_weeks . ' week +' . (7 - date('N') + 1) . ' days'));
-
-		function getDayTimes($day, $hour) {
-			$beginOriginal = new DateTime($day->format('Y-m-d') . ' ' . $hour->start);
-			$begin = new DateTime($day->format('Y-m-d') . ' ' . $hour->start);
-			$end = new DateTime($day->format('Y-m-d') . ' ' . $hour->end);
-
-			$hourDiff = $begin->diff($end);
-			$minutes_open = $hourDiff->h * 60;
-
-			if ($hourDiff->i == 30) {
-				$hourDiff->h++;
-				$minutes_open += 30;
-			}
-
-			$array = array();
-
-			for ($i = 1; $i <= $hourDiff->h*2; $i++) {
-				array_push($array,array('timestamp' => $begin->format('Y-m-d H:i'), 'employer_id' => Auth::user()->id));
-				$begin = $begin->modify('+30 minutes');
-			}
-			return array('array' => $array, 'minutes_left' => array('start' => $beginOriginal->format('Y-m-d H:i'), 'close' => $end->format('Y-m-d H:i'), 'max_available_minutes' => $minutes_open, 'company_id' => Auth::user()->company->id, 'employer_id' => Auth::user()->id));
-		}
-
-		function checkDay($d) {
-			return ((boolean) $d->start) ? true : false;
-		}
-
-		$monday = checkDay($day->mon);
-		$tuesday = checkDay($day->tue);
-		$wednesday = checkDay($day->wed);
-		$thursday = checkDay($day->thu);
-		$friday = checkDay($day->fri);
-		$saturday = checkDay($day->sat);
-		$sunday = checkDay($day->sun);
-
-		$weekDayNumbers = array(0,1,2,3,4,5,6);
-
-		// Boolean values for open days
-        $weekDaysOpen = array($monday,$tuesday,$wednesday,$thursday,$friday,$saturday,$sunday);
-
-        // Actual opening hours
-        $days = array($day->mon,$day->tue,$day->wed,$day->thu,$day->fri,$day->sat,$day->sun);
-
-		$hours = array();
-
-		$minutes_left = array();
-
-		foreach($period as $dt) {
-			$dayOfWeek = date('N', strtotime($dt->format('Y-m-d')));
-
-			$weekDay = array_search($dayOfWeek-1,$weekDayNumbers);
-			$isOpen = $weekDaysOpen[$weekDay];
-			if ($weekDay >= 0 && $weekDay < 7 && $isOpen) {
-				$today = getDayTimes($dt,$days[$weekDay]);
-                array_push($hours, $today['array']);
-                array_push($minutes_left, $today['minutes_left']);
-            }
-		}
-		$myHours = array();
-		$myMinutes = array();
-		foreach ($hours as $hour) {
-			foreach ($hour as $currentHour) {
-				array_push($myHours, $currentHour);
-			}
-		}
-		foreach ($minutes_left as $minutes) {
-			array_push($myMinutes, $minutes);
-		}
-		Time::insert($myHours);
-		TimeLeft::insert($myMinutes);
-		$last_day = end($myMinutes);
-		return response()->json(['success' => true, 'last_day' => $last_day['close']]);
+		return response()->json(['success' => true, 'last_day' => $last_day->close]);
     }
 }

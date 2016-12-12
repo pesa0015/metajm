@@ -7,6 +7,7 @@ use App\Http\Requests;
 use App\Time;
 use App\TimeLeft;
 use App\companies_employers;
+use App\Classes\SaveTime;
 use DB;
 use DateTime;
 use DateInterval;
@@ -45,11 +46,11 @@ class AddTimes extends Command
      */
     public function handle()
     {
-        $employers = DB::table('time_left')
-                        ->join('companies_employers', 'time_left.employer_id', '=', 'companies_employers.id')
-                        ->select(DB::raw("time_left.employer_id AS id, time_left.company_id, companies_employers.repeat_weeks * 7 - (DATEDIFF(MAX(close), CURDATE())) AS days_left, MAX(close) AS last_day, companies_employers.repeat_weeks AS weeks, default_opening_hours"))
-                        ->groupBy('companies_employers.id')
-                        ->orderBy('time_left.id')->get();
+        $employers = TimeLeft::join('companies_employers', 'time_left.employer_id', '=', 'companies_employers.id')
+                             ->select(DB::raw("time_left.employer_id AS id, time_left.company_id, companies_employers.repeat_weeks * 7 - (DATEDIFF(MAX(close), CURDATE())) AS days_left, MAX(close) AS last_day, companies_employers.repeat_weeks AS weeks, default_opening_hours"))
+                             ->groupBy('companies_employers.id')
+                             ->orderBy('time_left.id')
+                             ->get();
         
         function getDayTimes($day, $hour, $employer_id, $company_id) {
             $beginOriginal = new DateTime($day->format('Y-m-d') . ' ' . explode('-', $hour)[0]);
@@ -78,59 +79,13 @@ class AddTimes extends Command
         }
 
         foreach($employers as $employer) {
-            $begin = new DateTime($employer->last_day);
-            $begin = $begin->modify('+1 day');
-            $end = new DateTime($employer->last_day);
-            $end = $end->modify('+' . $employer->days_left . ' day');
-
-            $interval = new DateInterval('P1D');
-            $period = new DatePeriod($begin, $interval, $end);
-
+            $save = new SaveTime;
+            $user = (object) array(
+                    'company_id' => $employer->company_id, 
+                    'id' => $employer->id
+                );
             $day = json_decode($employer->default_opening_hours);
-
-            $monday = checkDay($day->mon);
-            $tuesday = checkDay($day->tue);
-            $wednesday = checkDay($day->wed);
-            $thursday = checkDay($day->thu);
-            $friday = checkDay($day->fri);
-            $saturday = checkDay($day->sat);
-            $sunday = checkDay($day->sun);
-
-            $weekDayNumbers = array(0,1,2,3,4,5,6);
-
-            // Boolean values for open days
-            $weekDaysOpen = array($monday,$tuesday,$wednesday,$thursday,$friday,$saturday,$sunday);
-
-            // Actual opening hours
-            $days = array($day->mon,$day->tue,$day->wed,$day->thu,$day->fri,$day->sat,$day->sun);
-            
-            $hours = array();
-
-            $minutes_left = array();
-
-            foreach($period as $dt) {
-                $dayOfWeek = date('N', strtotime($dt->format('Y-m-d')));
-
-                $weekDay = array_search($dayOfWeek-1,$weekDayNumbers);
-                $isOpen = $weekDaysOpen[$weekDay];
-                if ($weekDay >= 0 && $weekDay < 7 && $isOpen) {
-                    $today = getDayTimes($dt,$days[$weekDay],$employer->id,$employer->company_id);
-                    array_push($hours, $today['array']);
-                    array_push($minutes_left, $today['minutes_left']);
-                }
-            }
-            $myHours = array();
-            $myMinutes = array();
-            foreach ($hours as $hour) {
-                foreach ($hour as $currentHour) {
-                    array_push($myHours, $currentHour);
-                }
-            }
-            foreach ($minutes_left as $minutes) {
-                array_push($myMinutes, $minutes);
-            }
-            Time::insert($myHours);
-            TimeLeft::insert($myMinutes);
+            $save->time($user, $employer->last_day, $day, $employer->days_left, true, true);
         }
     }
 }
