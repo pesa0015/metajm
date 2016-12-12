@@ -23,6 +23,6 @@ class CompanyEmployer extends Model implements AuthenticatableContract, CanReset
 
     public function company()
     {
-    	return $this->belongsTo('App\companies', 'company_id');
+    	return $this->belongsTo('App\Company', 'company_id');
     }
 }

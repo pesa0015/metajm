@@ -11,11 +11,11 @@ class Time extends Model
 
     public function booking()
     {
-    	return $this->belongsTo('App\Booking');
+    	return $this->belongsTo('App\Booking', 'booking_id');
     }
 
     public function employers()
     {
-    	return $this->belongsTo('App\companies_employers', 'employer_id');
+    	return $this->belongsTo('App\CompanyEmployer', 'employer_id');
     }
 }

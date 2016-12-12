@@ -11,11 +11,11 @@ class Service extends Model
 
     public function category()
     {
-    	return $this->belongsTo('App\Category');
+    	return $this->belongsTo('App\Category', 'category_id');
     }
 
     public function company()
     {
-    	return $this->belongsTo('App\companies');
+    	return $this->belongsTo('App\Company', 'company_id');
     }
 }

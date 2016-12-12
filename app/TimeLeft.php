@@ -13,11 +13,11 @@ class TimeLeft extends Model
 
     public function company()
     {
-    	return $this->belongsTo('App\companies');
+    	return $this->belongsTo('App\Company', 'company_id');
     }
 
     public function employer()
     {
-    	return $this->belongsTo('App\companies_employers');
+    	return $this->belongsTo('App\CompanyEmployer', 'employer_id');
     }
 }
