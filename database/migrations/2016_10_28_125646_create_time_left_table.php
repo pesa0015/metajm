@@ -32,6 +32,11 @@ class CreateTimeLeftTable extends Migration
      */
     public function down()
     {
+        Schema::table('time_left', function (Blueprint $table) {
+            $table->dropForeign('time_left_company_id_foreign');
+            $table->dropForeign('time_left_employer_id_foreign');
+        });
+
         Schema::drop('time_left');
     }
 }

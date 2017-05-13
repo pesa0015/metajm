@@ -16,8 +16,11 @@ class CreateCompaniesEmployersServicesTable extends Migration
             $table->increments('id');
             $table->integer('employer_id')->unsigned()->nullable();
             $table->integer('service_id')->unsigned()->nullable();
+            $table->integer('company_id')->unsigned()->nullable();
             $table->foreign('employer_id')->references('id')->on('companies_employers');
             $table->foreign('service_id')->references('id')->on('services');
+            $table->foreign('company_id')->references('id')->on('companies');
+            $table->timestamps();
         });
     }
 
@@ -28,6 +31,12 @@ class CreateCompaniesEmployersServicesTable extends Migration
      */
     public function down()
     {
+        Schema::table('companies_employers_services', function (Blueprint $table) {
+            $table->dropForeign('companies_employers_services_employer_id_foreign');
+            $table->dropForeign('companies_employers_services_service_id_foreign');
+            $table->dropForeign('companies_employers_services_company_id_foreign');
+        });
+
         Schema::drop('companies_employers_services');
     }
 }

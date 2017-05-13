@@ -27,7 +27,9 @@ class AddTransactionIdToBookingsTable extends Migration
     public function down()
     {
         Schema::table('bookings', function (Blueprint $table) {
-            //
+            $table->dropColumn('transaction_id');
+            $table->dropColumn('payment_method');
+            $table->dropColumn('booking_key');
         });
     }
 }
