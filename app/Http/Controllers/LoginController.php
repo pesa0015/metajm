@@ -12,68 +12,68 @@ use Illuminate\Support\Facades\Redirect;
 
 class LoginController extends Controller
 {
-	public function logout()
-	{
-		Auth::logout();
-		return redirect('/');
-	}
+    public function logout()
+    {
+        Auth::logout();
+        return redirect('/');
+    }
 
-	public function loginPrivate()
-	{
-		return view('auth.login_private');
-	}
+    public function loginPrivate()
+    {
+        return view('auth.login_private');
+    }
 
-	public function loginCompany()
-	{
-		return view('auth.login_company');
-	}
+    public function loginCompany()
+    {
+        return view('auth.login_company');
+    }
 
-	public function authPrivate(Request $request)
-	{
-		$email = $request->email;
+    public function authPrivate(Request $request)
+    {
+        $email = $request->email;
 
-		$user = User::where('email', $email)->first();
+        $user = User::where('email', $email)->first();
 
-		if(!$user) {
-			return response()->json(['type' => 'email', 'message' => 'E-postadressen hittades inte.']); 
-		}
+        if (!$user) {
+            return response()->json(['type' => 'email', 'message' => 'E-postadressen hittades inte.']);
+        }
 
-		// create our user data for the authentication
-		$userdata = array(
-		    'email'     => $email,
-		    'password'  => $request->password
-		);
+        // create our user data for the authentication
+        $userdata = array(
+            'email'     => $email,
+            'password'  => $request->password
+        );
 
-		\Config::set('auth.defaults.guard', 'users');
+        \Config::set('auth.defaults.guard', 'users');
 
-		if (Auth::attempt($userdata)) {
-			return response()->json(['success' => true]); 
-		}
-		return response()->json(['type' => 'password', 'message' => 'Fel lösenord.']);
-	}
+        if (Auth::attempt($userdata)) {
+            return response()->json(['success' => true]);
+        }
+        return response()->json(['type' => 'password', 'message' => 'Fel lösenord.']);
+    }
 
-	public function authCompany()
-	{
-		$email = Input::get('email');
+    public function authCompany()
+    {
+        $email = Input::get('email');
 
-		$user = CompanyEmployer::where('email', Input::get('email'))->first();
+        $user = CompanyEmployer::where('email', Input::get('email'))->first();
 
-		if(!$user) {
-			return Redirect::to('login')->withInput()->with('error-email', 'Unknown username.'); 
-		}
+        if (!$user) {
+            return Redirect::to('login')->withInput()->with('error-email', 'Unknown username.');
+        }
 
-		// create our user data for the authentication
-		$userdata = array(
-		    'email'     => $email,
-		    'password'  => Input::get('password')
-		);
+        // create our user data for the authentication
+        $userdata = array(
+            'email'     => $email,
+            'password'  => Input::get('password')
+        );
 
-		if (Auth::attempt($userdata)) {
-			$user = CompanyEmployer::with('company')->find(Auth::user()->id);
-			Auth::user()->company->id = $user->company->id;
-			Auth::user()->company->name = $user->company->name;
-			return Redirect::to('/company/start');
-		}
-		return Redirect::to('login')->withInput()->with('error-password', 'Wrong password.');
-	}
+        if (Auth::attempt($userdata)) {
+            $user = CompanyEmployer::with('company')->find(Auth::user()->id);
+            Auth::user()->company->id = $user->company->id;
+            Auth::user()->company->name = $user->company->name;
+            return Redirect::to('/company/start');
+        }
+        return Redirect::to('login')->withInput()->with('error-password', 'Wrong password.');
+    }
 }

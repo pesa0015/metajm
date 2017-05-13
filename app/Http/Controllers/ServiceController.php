@@ -13,36 +13,38 @@ class ServiceController extends Controller
 {
     public function create(Request $request)
     {
-    	$newServices = json_decode($request->services);
+        $newServices = json_decode($request->services);
 
-    	if (count($newServices) == 0)
-    		return;
+        if (count($newServices) == 0) {
+            return;
+        }
 
         $services = array();
 
-    	foreach ($newServices as $newService) {
-    		$categoryId = null;
-    		if ((int) $newService->category > 0) {
-    			$categoryId = $newService->category;
-    		}
-    		else {
-	    		$category = new Category;
-	    		$category->name = $newService->category;
-	    		$category->save();
-	    		$categoryId = $category->id;
-	    	}
-	    	array_push($services, array(
-	    		'name' => $newService->description, 
-	    		'price' => $newService->price, 
-	    		'time' => $newService->time,
-	    		'category_id' => $categoryId,
-	    		'company_id' => Auth::user()->company->id
-	    		)
-	    	);
-    	}
+        foreach ($newServices as $newService) {
+            $categoryId = null;
+            if ((int) $newService->category > 0) {
+                $categoryId = $newService->category;
+            } else {
+                $category = new Category;
+                $category->name = $newService->category;
+                $category->save();
+                $categoryId = $category->id;
+            }
+            array_push(
+                $services,
+                array(
+                    'name' => $newService->description,
+                    'price' => $newService->price,
+                    'time' => $newService->time,
+                    'category_id' => $categoryId,
+                    'company_id' => Auth::user()->company->id
+                )
+            );
+        }
 
-    	Service::insert($services);
-    	return response()->json(['success' => true]);
+        Service::insert($services);
+        return response()->json(['success' => true]);
     }
 
     public function edit(Request $request)
@@ -51,8 +53,7 @@ class ServiceController extends Controller
         $categoryId = null;
         if (is_numeric($updated_service->category_id)) {
             $categoryId = $updated_service->category_id;
-        }
-        else {
+        } else {
             $category = new Category;
             $category->name = $updated_service->category_id;
             $category->save();
@@ -78,8 +79,7 @@ class ServiceController extends Controller
             $myService->service_id = $currentService->id;
             $myService->company_id = Auth::user()->company->id;
             $myService->save();
-        }
-        else {
+        } else {
             $myService = CompanyEmployerService::where('employer_id', Auth::user()->id)
                                                ->where('service_id', $service->id)
                                                ->where('company_id', Auth::user()->company->id)

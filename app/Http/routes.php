@@ -13,19 +13,19 @@
 
 Route::post('booking/done', 'IndexController@check');
 
-Route::group(['prefix' => 'get'], function() {
-	Route::post('company', 'CompanyController@getCompany');
-	Route::post('times', 'CompanyController@getTimesAndEmployers');
-	Route::post('hours', 'CompanyController@getHours');
-	Route::post('days-available', 'CompanyController@getDays');
-	Route::post('employers', 'CompanyController@getEmployers');
+Route::group(['prefix' => 'get'], function () {
+    Route::post('company', 'CompanyController@getCompany');
+    Route::post('times', 'CompanyController@getTimesAndEmployers');
+    Route::post('hours', 'CompanyController@getHours');
+    Route::post('days-available', 'CompanyController@getDays');
+    Route::post('employers', 'CompanyController@getEmployers');
 });
 
-Route::group(['prefix' => 'search'], function() {
-	Route::post('category', 'SearchController@category');
-	Route::post('address', 'SearchController@getCompanies');
-	Route::post('live-search', 'SearchController@liveSearch');
-	Route::post('main-search', 'SearchController@mainSearch');
+Route::group(['prefix' => 'search'], function () {
+    Route::post('category', 'SearchController@category');
+    Route::post('address', 'SearchController@getCompanies');
+    Route::post('live-search', 'SearchController@liveSearch');
+    Route::post('main-search', 'SearchController@mainSearch');
 });
 
 /*
@@ -40,27 +40,27 @@ Route::group(['prefix' => 'search'], function() {
 */
 
 Route::group(['middleware' => 'web'], function () {
-	Route::auth();
+    Route::auth();
 
-	Route::get('/', 'IndexController@welcome');
+    Route::get('/', 'IndexController@welcome');
 
-	Route::get('logga-in/privat', 'LoginController@loginPrivate');
-	Route::get('logga-in/foretag', 'LoginController@loginCompany');
-	Route::post('auth/private', 'LoginController@authPrivate');
-	Route::post('auth/company', 'LoginController@authCompany');
+    Route::get('logga-in/privat', 'LoginController@loginPrivate');
+    Route::get('logga-in/foretag', 'LoginController@loginCompany');
+    Route::post('auth/private', 'LoginController@authPrivate');
+    Route::post('auth/company', 'LoginController@authCompany');
     Route::get('logout', 'LoginController@logout');
 
     Route::post('booking/start', 'BookController@start');
     Route::post('booking/do', 'BookController@goToSveaPaymentPage');
 
-	Route::get('company/start', 'EmployerController@start');
-	Route::get('company/services', 'EmployerController@showServices');
-	Route::get('company/opening_hours', 'EmployerController@showOpeningHours');
-	Route::post('set-opening-hours', 'EmployerController@setOpeninghours');
+    Route::get('company/start', 'EmployerController@start');
+    Route::get('company/services', 'EmployerController@showServices');
+    Route::get('company/opening_hours', 'EmployerController@showOpeningHours');
+    Route::post('set-opening-hours', 'EmployerController@setOpeninghours');
 
-    Route::group(['prefix' => 'company/services'], function() {
-	    Route::post('create', 'ServiceController@create');
-	    Route::post('edit', 'ServiceController@edit');
-	    Route::post('use', 'ServiceController@useService');
-	});
+    Route::group(['prefix' => 'company/services'], function () {
+        Route::post('create', 'ServiceController@create');
+        Route::post('edit', 'ServiceController@edit');
+        Route::post('use', 'ServiceController@useService');
+    });
 });

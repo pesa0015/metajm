@@ -15,8 +15,9 @@ class SearchController extends Controller
     public function isCompany($search)
     {
         $company = Company::where('id', $search)->orWhere('name', $search)->first();
-        if ($company)
+        if ($company) {
             return $company->id;
+        }
         return -1;
     }
 
@@ -38,8 +39,12 @@ class SearchController extends Controller
             $lat = $request->lat;
             $lng = $request->lng;
             $radius = $request->radius;
+            $select = "id, name, lat, lng, postal_code, city, address, ";
+            $select .= "( 3959 * acos( cos( radians({$lat}) ) * cos( radians( lat ) ) ";
+            $select .= "* cos( radians( lng ) - radians({$lng}) ) + sin( radians({$lat}) ) ";
+            $select .= "* sin( radians( lat ) ) ) ) AS distance";
             $companies = DB::table('companies')
-                        ->select(DB::raw("id, name, lat, lng, postal_code, city, address, ( 3959 * acos( cos( radians({$lat}) ) * cos( radians( lat ) ) * cos( radians( lng ) - radians({$lng}) ) + sin( radians({$lat}) ) * sin( radians( lat ) ) ) ) AS distance"))
+                        ->select(DB::raw($select))
                         ->where($foundBusiness, '=', 1)
                         ->having('distance', '<', $radius)->get();
             return response()->json(['companies' => $companies, 'show_google_maps' => true]);
@@ -47,12 +52,27 @@ class SearchController extends Controller
         $category = Category::where('name', $search)->get();
         if (!$category->isEmpty()) {
             $companies = Company::select('companies.*')
-                                  ->join('services', 'companies.id', '=', 'services.company_id')
-                                  ->join('categories', 'services.id', '=', 'services.category_id')
-                                  ->join('companies_employers_services', 'services.id', '=', 'companies_employers_services.service_id')
-                                  ->where('categories.name', $search)
-                                  ->groupBy('companies_employers_services.company_id')
-                                  ->get();
+                                    ->join(
+                                        'services',
+                                        'companies.id',
+                                        '=',
+                                        'services.company_id'
+                                    )
+                                    ->join(
+                                        'categories',
+                                        'services.id',
+                                        '=',
+                                        'services.category_id'
+                                    )
+                                    ->join(
+                                        'companies_employers_services',
+                                        'services.id',
+                                        '=',
+                                        'companies_employers_services.service_id'
+                                    )
+                                    ->where('categories.name', $search)
+                                    ->groupBy('companies_employers_services.company_id')
+                                    ->get();
             return response()->json(['companies' => $companies, 'show_google_maps' => true]);
         }
         $company_id = $this->isCompany($search);
@@ -67,18 +87,14 @@ class SearchController extends Controller
         return response()->json($search->search);
     }
 
-    public function existingServices(Request $request)
-    {
-        
-    }
-
     public function category(Request $request)
     {
         $search = $request->term;
         $categories = Category::where('name', 'LIKE', "%{$search}%")->get();
-        if (!$categories->isEmpty())
+        if (!$categories->isEmpty()) {
             return response()->json($categories);
-        else 
+        } else {
             return response()->json([0 => array('id' => $search, 'name' => $search)]);
+        }
     }
 }

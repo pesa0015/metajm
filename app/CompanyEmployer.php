@@ -15,14 +15,24 @@ use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
 class CompanyEmployer extends Model implements AuthenticatableContract, CanResetPasswordContract
 {
-	use Authenticatable, CanResetPassword;
+    use Authenticatable, CanResetPassword;
 
-	public $table = 'companies_employers';
-    protected $fillable = ['first_name', 'last_name', 'email', 'password', 'admin_role', 'company_id', 'repeat_weeks', 'default_opening_hours'];
+    public $table = 'companies_employers';
+    protected $fillable = [
+        'first_name',
+        'last_name',
+        'email',
+        'password',
+        'admin_role',
+        'company_id',
+        'repeat_weeks',
+        'default_opening_hours'
+    ];
+
     protected $primaryKey = 'id';
 
     public function company()
     {
-    	return $this->belongsTo('App\Company', 'company_id');
+        return $this->belongsTo('App\Company', 'company_id');
     }
 }
