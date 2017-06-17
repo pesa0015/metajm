@@ -15,7 +15,7 @@ class Booking extends Model
         'booked_by_user',
         'service_id',
         'company_id',
-        'employer_id',
+        'stylist_id',
         'transaction_id',
         'payment_method',
         'booking_key'
@@ -26,8 +26,8 @@ class Booking extends Model
         return $this->belongsTo('App\Company', 'company_id');
     }
 
-    public function employer()
+    public function stylist()
     {
-        return $this->belongsTo('App\CompanyEmployer', 'employer_id');
+        return $this->belongsTo('App\Stylist', 'stylist_id');
     }
 }

@@ -16,11 +16,11 @@ class CreateTimesTable extends Migration
             $table->increments('id');
             $table->timestamp('timestamp');
             $table->integer('booking_id')->unsigned()->nullable();
-            $table->integer('employer_id')->unsigned()->nullable();
+            $table->integer('stylist_id')->unsigned()->nullable();
             $table->integer('company_id')->unsigned()->nullable();
 
             $table->foreign('booking_id')->references('id')->on('bookings');
-            $table->foreign('employer_id')->references('id')->on('companies_employers');
+            $table->foreign('stylist_id')->references('id')->on('stylists');
             $table->foreign('company_id')->references('id')->on('companies');
         });
     }
@@ -34,7 +34,7 @@ class CreateTimesTable extends Migration
     {
         Schema::table('times', function (Blueprint $table) {
             $table->dropForeign('times_booking_id_foreign');
-            $table->dropForeign('times_employer_id_foreign');
+            $table->dropForeign('times_stylist_id_foreign');
             $table->dropForeign('times_company_id_foreign');
         });
 

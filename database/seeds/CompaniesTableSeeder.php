@@ -26,7 +26,7 @@ class CompaniesTableSeeder extends Seeder
             'city' => 'Göteborg',
             'tel' => '0704903063',
             'mail' => 'peters945@hotmail.com',
-            'show_employers' => 1,
+            'show_stylists' => 1,
             'password' => '$2y$10$jjuwArwnBlBlk7dWmEJxQeFi8JGfE7roxMoqSvQEF64arVQIx1jaS'
         ]);
     }

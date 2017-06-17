@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Http\Requests;
 use App\Category;
 use App\Service;
-use App\CompanyEmployerService;
+use App\StylistService;
 use Auth;
 
 class ServiceController extends Controller
@@ -74,13 +74,13 @@ class ServiceController extends Controller
         $service = $request;
         if ($service->use === 'true') {
             $currentService = Service::find($service->id);
-            $myService = new CompanyEmployerService;
-            $myService->employer_id = Auth::user()->id;
+            $myService = new StylistService;
+            $myService->stylist_id = Auth::user()->id;
             $myService->service_id = $currentService->id;
             $myService->company_id = Auth::user()->company->id;
             $myService->save();
         } else {
-            $myService = CompanyEmployerService::where('employer_id', Auth::user()->id)
+            $myService = StylistService::where('stylist_id', Auth::user()->id)
                                                ->where('service_id', $service->id)
                                                ->where('company_id', Auth::user()->company->id)
                                                ->delete();

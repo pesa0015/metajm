@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 
-class CompaniesEmployersServicesTableSeeder extends Seeder
+class StylistServicesTableSeeder extends Seeder
 {
     /**
      * Run the database seeds.
@@ -11,8 +11,8 @@ class CompaniesEmployersServicesTableSeeder extends Seeder
      */
     public function run()
     {
-        DB::table('companies_employers_services')->insert([
-            'employer_id' => '1',
+        DB::table('stylist_services')->insert([
+            'stylist_id' => '1',
             'service_id' => '1'
         ]);
     }

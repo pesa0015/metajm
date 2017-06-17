@@ -17,10 +17,10 @@ Route::post('booking/done', 'IndexController@check');
 
 Route::group(['prefix' => 'get'], function () {
     Route::post('company', 'CompanyController@getCompany');
-    Route::post('times', 'CompanyController@getTimesAndEmployers');
+    Route::post('times', 'CompanyController@getTimesAndStylists');
     Route::post('hours', 'CompanyController@getHours');
     Route::post('days-available', 'CompanyController@getDays');
-    Route::post('employers', 'CompanyController@getEmployers');
+    Route::post('stylists', 'CompanyController@getStylists');
 });
 
 Route::group(['prefix' => 'search'], function () {

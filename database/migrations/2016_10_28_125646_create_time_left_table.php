@@ -18,10 +18,10 @@ class CreateTimeLeftTable extends Migration
             $table->timestamp('close')->nullable();
             $table->integer('max_available_minutes')->nullable();
             $table->integer('company_id')->unsigned()->nullable();
-            $table->integer('employer_id')->unsigned()->nullable();
+            $table->integer('stylist_id')->unsigned()->nullable();
 
             $table->foreign('company_id')->references('id')->on('companies');
-            $table->foreign('employer_id')->references('id')->on('companies_employers');
+            $table->foreign('stylist_id')->references('id')->on('stylists');
         });
     }
 
@@ -34,7 +34,7 @@ class CreateTimeLeftTable extends Migration
     {
         Schema::table('time_left', function (Blueprint $table) {
             $table->dropForeign('time_left_company_id_foreign');
-            $table->dropForeign('time_left_employer_id_foreign');
+            $table->dropForeign('time_left_stylist_id_foreign');
         });
 
         Schema::drop('time_left');

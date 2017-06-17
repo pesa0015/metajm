@@ -13,11 +13,10 @@ use Illuminate\Auth\Passwords\CanResetPassword;
 use Illuminate\Contracts\Auth\Authenticatable as AuthenticatableContract;
 use Illuminate\Contracts\Auth\CanResetPassword as CanResetPasswordContract;
 
-class CompanyEmployer extends Model implements AuthenticatableContract, CanResetPasswordContract
+class Stylist extends Model implements AuthenticatableContract, CanResetPasswordContract
 {
     use Authenticatable, CanResetPassword;
 
-    public $table = 'companies_employers';
     protected $fillable = [
         'first_name',
         'last_name',
@@ -28,8 +27,6 @@ class CompanyEmployer extends Model implements AuthenticatableContract, CanReset
         'repeat_weeks',
         'default_opening_hours'
     ];
-
-    protected $primaryKey = 'id';
 
     public function company()
     {

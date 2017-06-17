@@ -21,12 +21,12 @@ class CreateBookingsTable extends Migration
             $table->integer('booked_by_user')->unsigned()->nullable();
             $table->integer('service_id')->unsigned()->nullable();
             $table->integer('company_id')->unsigned()->nullable();
-            $table->integer('employer_id')->unsigned()->nullable();
+            $table->integer('stylist_id')->unsigned()->nullable();
 
             $table->foreign('booked_by_user')->references('id')->on('users');
             $table->foreign('service_id')->references('id')->on('services');
             $table->foreign('company_id')->references('id')->on('companies');
-            $table->foreign('employer_id')->references('id')->on('companies_employers');
+            $table->foreign('stylist_id')->references('id')->on('stylists');
         });
     }
 
@@ -41,7 +41,7 @@ class CreateBookingsTable extends Migration
             $table->dropForeign('bookings_booked_by_user_foreign');
             $table->dropForeign('bookings_service_id_foreign');
             $table->dropForeign('bookings_company_id_foreign');
-            $table->dropForeign('bookings_employer_id_foreign');
+            $table->dropForeign('bookings_stylist_id_foreign');
         });
         
         Schema::drop('bookings');

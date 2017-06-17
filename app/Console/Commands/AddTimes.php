@@ -6,7 +6,7 @@ use Illuminate\Console\Command;
 use App\Http\Requests;
 use App\Time;
 use App\TimeLeft;
-use App\companies_employers;
+use App\Stylist;
 use App\Classes\SaveTime;
 use DB;
 use DateTime;
@@ -46,28 +46,28 @@ class AddTimes extends Command
      */
     public function handle()
     {
-        $employers = TimeLeft::join(
-            'companies_employers',
-            'time_left.employer_id',
+        $stylists = TimeLeft::join(
+            'stylists',
+            'time_left.stylist_id',
             '=',
-            'companies_employers.id'
+            'stylist.id'
         )
         ->select(
             DB::raw(
-                "time_left.employer_id AS id,
+                "time_left.stylist_id AS id,
                 time_left.company_id,
-                companies_employers.repeat_weeks * 7 - (DATEDIFF(MAX(close),
+                stylists.repeat_weeks * 7 - (DATEDIFF(MAX(close),
                 CURDATE())) AS days_left,
                 MAX(close) AS last_day,
-                companies_employers.repeat_weeks AS weeks,
+                stylists.repeat_weeks AS weeks,
                 default_opening_hours"
             )
         )
-        ->groupBy('companies_employers.id')
+        ->groupBy('stylists.id')
         ->orderBy('time_left.id')
         ->get();
         
-        function getDayTimes($day, $hour, $employer_id, $company_id)
+        function getDayTimes($day, $hour, $stylist_id, $company_id)
         {
             $beginOriginal = new DateTime($day->format('Y-m-d') . ' ' . explode('-', $hour)[0]);
             $begin = new DateTime($day->format('Y-m-d') . ' ' . explode('-', $hour)[0]);
@@ -84,7 +84,7 @@ class AddTimes extends Command
             $array = array();
 
             for ($i = 1; $i <= $hourDiff->h*2; $i++) {
-                array_push($array, array('timestamp' => $begin->format('Y-m-d H:i'), 'employer_id' => $employer_id));
+                array_push($array, array('timestamp' => $begin->format('Y-m-d H:i'), 'stylist_id' => $stylist_id));
                 $begin = $begin->modify('+30 minutes');
             }
             return array(
@@ -94,7 +94,7 @@ class AddTimes extends Command
                     'close' => $end->format('Y-m-d H:i'),
                     'max_available_minutes' => $minutes_open,
                     'company_id' => $company_id,
-                    'employer_id' => $employer_id
+                    'stylist_id' => $stylist_id
                 )
             );
         }
@@ -104,14 +104,14 @@ class AddTimes extends Command
             return ($d !== '-') ? true : false;
         }
 
-        foreach ($employers as $employer) {
+        foreach ($stylists as $stylist) {
             $save = new SaveTime;
             $user = (object) array(
-                    'company_id' => $employer->company_id,
-                    'id' => $employer->id
+                    'company_id' => $stylist->company_id,
+                    'id' => $stylist->id
                 );
-            $day = json_decode($employer->default_opening_hours);
-            $save->time($user, $employer->last_day, $day, $employer->days_left, true, true);
+            $day = json_decode($stylist->default_opening_hours);
+            $save->time($user, $stylist->last_day, $day, $stylist->days_left, true, true);
         }
     }
 }

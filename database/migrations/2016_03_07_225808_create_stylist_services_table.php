@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class CreateCompaniesEmployersServicesTable extends Migration
+class CreateStylistServicesTable extends Migration
 {
     /**
      * Run the migrations.
@@ -12,12 +12,12 @@ class CreateCompaniesEmployersServicesTable extends Migration
      */
     public function up()
     {
-        Schema::create('companies_employers_services', function (Blueprint $table) {
+        Schema::create('stylist_services', function (Blueprint $table) {
             $table->increments('id');
-            $table->integer('employer_id')->unsigned()->nullable();
+            $table->integer('stylist_id')->unsigned()->nullable();
             $table->integer('service_id')->unsigned()->nullable();
             $table->integer('company_id')->unsigned()->nullable();
-            $table->foreign('employer_id')->references('id')->on('companies_employers');
+            $table->foreign('stylist_id')->references('id')->on('stylists');
             $table->foreign('service_id')->references('id')->on('services');
             $table->foreign('company_id')->references('id')->on('companies');
             $table->timestamps();
@@ -31,12 +31,12 @@ class CreateCompaniesEmployersServicesTable extends Migration
      */
     public function down()
     {
-        Schema::table('companies_employers_services', function (Blueprint $table) {
-            $table->dropForeign('companies_employers_services_employer_id_foreign');
-            $table->dropForeign('companies_employers_services_service_id_foreign');
-            $table->dropForeign('companies_employers_services_company_id_foreign');
+        Schema::table('stylist_services', function (Blueprint $table) {
+            $table->dropForeign('stylist_services_stylist_id_foreign');
+            $table->dropForeign('stylist_services_service_id_foreign');
+            $table->dropForeign('stylist_services_company_id_foreign');
         });
 
-        Schema::drop('companies_employers_services');
+        Schema::drop('stylist_services');
     }
 }

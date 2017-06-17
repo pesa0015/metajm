@@ -40,7 +40,7 @@ class SaveTime
             $array = array();
 
             for ($i = 1; $i <= $hourDiff->h*2; $i++) {
-                array_push($array, array('timestamp' => $begin->format('Y-m-d H:i'), 'employer_id' => 1));
+                array_push($array, array('timestamp' => $begin->format('Y-m-d H:i'), 'stylist_id' => 1));
                 $begin = $begin->modify('+30 minutes');
             }
             return array(
@@ -50,7 +50,7 @@ class SaveTime
                     'close' => $end->format('Y-m-d H:i'),
                     'max_available_minutes' => $minutes_open,
                     'company_id' => $user->company_id,
-                    'employer_id' => $user->id
+                    'stylist_id' => $user->id
                 )
             );
         }

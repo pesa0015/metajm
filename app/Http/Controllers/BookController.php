@@ -53,7 +53,7 @@ class BookController extends Controller
         $booking->booked_by_user = Auth::user()->id;
         $booking->service_id = $service->id;
         $booking->company_id = $companyId;
-        $booking->employer_id = 1;
+        $booking->stylist_id = 1;
         $booking->save();
 
         Time::where('timestamp', '>=', $today->format('Y-m-d H:i'))

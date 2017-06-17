@@ -20,12 +20,12 @@ class Company extends Model
         'tattoo',
         'tel',
         'mail',
-        'show_employers',
+        'show_stylists',
         'password'
     ];
 
     public function company()
     {
-        return $this->hasMany('App\CompanyEmployer');
+        return $this->hasMany('App\Stylist');
     }
 }

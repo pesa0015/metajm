@@ -6,15 +6,15 @@ use Illuminate\Http\Request;
 use App\Time;
 use App\TimeLeft;
 use App\Service;
-use App\CompanyEmployerService;
+use App\StylistService;
 use App\Company;
-use App\CompanyEmployer;
+use App\Stylist;
 use Auth;
 use DateTime;
 use DateInterval;
 use DatePeriod;
 
-class EmployerController extends Controller
+class StylistController extends Controller
 {
     public function __construct()
     {
@@ -23,7 +23,7 @@ class EmployerController extends Controller
 
     public function start()
     {
-        $user = CompanyEmployer::with('company')->find(Auth::user()->id);
+        $user = Stylist::with('company')->find(Auth::user()->id);
         return view('company.start', ['user' => $user]);
     }
 
@@ -31,9 +31,9 @@ class EmployerController extends Controller
     {
         $services = Service::with('company')->get();
 
-        $my_services = CompanyEmployerService::with('employer')
+        $my_services = StylistService::with('stylist')
                                              ->with('service')
-                                             ->where('employer_id', Auth::user()->id)
+                                             ->where('stylist_id', Auth::user()->id)
                                              ->get();
         if ($my_services) {
             $myServicesArray = array();
@@ -54,7 +54,7 @@ class EmployerController extends Controller
     {
         \App::setLocale('sv');
         $days = array('monday','tuesday','wednesday','thursday','friday','saturday','sunday');
-        $my_days_json = CompanyEmployer::select('default_opening_hours AS hours')
+        $my_days_json = Stylist::select('default_opening_hours AS hours')
                                        ->where('email', [Auth::user()->email])
                                        ->first();
         $my_days = json_decode($my_days_json->hours);
@@ -71,7 +71,7 @@ class EmployerController extends Controller
             $days_open = array('checked','checked','checked','checked','checked',false,false);
         }
 
-        $last_day = TimeLeft::where('employer_id', Auth::user()->id)->orderBy('id', 'DESC')->first();
+        $last_day = TimeLeft::where('stylist_id', Auth::user()->id)->orderBy('id', 'DESC')->first();
         $day = false;
         if ($last_day) {
             $last_day = $last_day->close;
@@ -104,15 +104,15 @@ class EmployerController extends Controller
                   .',"fri":' . isOpen($day->fri)
                   .',"sat":' . isOpen($day->sat)
                   .',"sun":' . isOpen($day->sun) . '}';
-        $employer = CompanyEmployer::find(Auth::user()->id);
-        $employer->default_opening_hours = $default;
+        $stylist = Stylist::find(Auth::user()->id);
+        $stylist->default_opening_hours = $default;
         if ($day->repeat_weeks) {
-            $employer->repeat_weeks = $day->repeat_weeks;
+            $stylist->repeat_weeks = $day->repeat_weeks;
         } else {
-            $employer->repeat_weeks = null;
+            $stylist->repeat_weeks = null;
         }
-        $time = time::with('employers')->where('employer_id', Auth::user()->id)->get();
-        $employer->save();
+        $time = time::with('stylists')->where('stylist_id', Auth::user()->id)->get();
+        $stylist->save();
         if (!$time->isEmpty()) {
             return response()->json(['success' => true]);
         }
