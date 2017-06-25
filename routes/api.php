@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 |
 */
 
+Route::post('auth', 'Auth\AuthController@authenticate');
+
 Route::post('booking/done', 'IndexController@check');
 
 Route::group(['prefix' => 'get'], function () {
