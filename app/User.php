@@ -28,4 +28,9 @@ class User extends Authenticatable
     {
         return $this->belongsTo('App\Stylist', 'stylist_id');
     }
+
+    public function customer()
+    {
+        return $this->belongsTo('App\Customer', 'customer_id');
+    }
 }
