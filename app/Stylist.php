@@ -21,4 +21,9 @@ class Stylist extends Model
     {
         return $this->belongsTo('App\Company', 'company_id');
     }
+
+    public function user()
+    {
+        return $this->hasOne('App\User');
+    }
 }
